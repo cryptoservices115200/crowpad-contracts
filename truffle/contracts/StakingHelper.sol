@@ -20,6 +20,8 @@ interface ITokenLocker {
 }
 
 contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
+
+    using SafeERC20 for IERC20;
     
     struct Settings {
         uint256 startTimeForDeposit;
