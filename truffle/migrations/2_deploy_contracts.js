@@ -1,6 +1,6 @@
 const CronosToken = artifacts.require("CronosToken")
 const Airdropper = artifacts.require("Airdropper")
-const totalAmount = 100000
+const totalAmount = "1000000000000000000000000"
 
 module.exports = async function (deployer, networks, accounts) {
   // deploy cronos token
