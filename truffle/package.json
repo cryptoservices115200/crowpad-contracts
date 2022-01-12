@@ -1,8 +1,7 @@
 {
-  "name": "truffle-example",
+  "name": "crow_pad",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "deploy-contract-cronos": "./node_modules/.bin/truffle migrate --reset --network cronos"
   },
