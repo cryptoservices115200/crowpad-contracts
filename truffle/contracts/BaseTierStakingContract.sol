@@ -68,7 +68,19 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     event onFeeCharged(uint256 lockId, address owner, uint256 amountInTokens);
     event onMigrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime);
   
-    constructor(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address _depositor, address _tokenAddress, address _feeAddress, address _stakingHelper) {
+    constructor(
+        uint8 tierId,
+        uint8 multiplier,
+        uint8 emergencyWithdrawlFee,
+        uint8 enableEarlyWithdrawal,
+        uint256 unlockDuration,
+        uint8 enableRewards,
+        address _depositor,
+        address _tokenAddress,
+        address _feeAddress,
+        address _stakingHelper
+    )
+    {
         tokenAddress = _tokenAddress;
         CONFIG.tierId = tierId;
         CONFIG.multiplier = multiplier;
@@ -76,7 +88,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         CONFIG.unlockDuration = unlockDuration;
         CONFIG.enableEarlyWithdrawal = enableEarlyWithdrawal;
         CONFIG.depositor = _depositor;
-        CONFIG.stakingHelper  = _stakingHelper;
+        CONFIG.stakingHelper = _stakingHelper;
         CONFIG.feeAddress = _feeAddress;
         CONFIG.enableRewards = enableRewards;
     }  
