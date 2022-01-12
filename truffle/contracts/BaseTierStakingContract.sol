@@ -61,12 +61,12 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     mapping(address => uint256[]) public USER_LOCKS; // UserAddress=> LockId
     
     IMigrator public MIGRATOR;
+
     event onLock(uint256 lockId, address owner, uint256 amountInTokens, uint256 iPP);
     event onLockUpdated(uint256 lockId, address owner, uint256 amountInTokens, uint256 tierId);
     event onWithdraw(uint256 lockId, address owner, uint256 amountInTokens);
     event onFeeCharged(uint256 lockId, address owner, uint256 amountInTokens);
-    event onMigrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime,  uint256 lockTime);
-
+    event onMigrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime);
   
     constructor(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address _depositor, address _tokenAddress, address _feeAddress, address _stakingHelper) {
         tokenAddress = _tokenAddress;
@@ -86,8 +86,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     */
     function setMigrator(IMigrator _migrator) external onlyOwner {
         MIGRATOR = _migrator;
-    }
-  
+    }  
 
     /**
     * @notice Creates one or multiple locks for the specified token
@@ -109,8 +108,8 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         require(_lock_params.length > 0, 'NO PARAMS');
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < _lock_params.length; i++) {
-            require(_lock_params[i].owner!=address(0), 'No ADDR');
-            require(_lock_params[i].amount>0, 'No AMT');
+            require(_lock_params[i].owner != address(0), 'No ADDR');
+            require(_lock_params[i].amount > 0, 'No AMT');
             totalAmount += _lock_params[i].amount;
         }
 
@@ -133,7 +132,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
             LOCKS[NONCE] = token_lock;
             tierTotalParticipationPoints += token_lock.iPP;
             USER_LOCKS[token_lock.owner].push(token_lock.lockId);
-            NONCE ++;
+            NONCE++;
             emit onLock(token_lock.lockId, token_lock.owner, token_lock.amount, token_lock.iPP);
         }
     }
@@ -155,7 +154,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     * then back into an amount
     * @param _lockId the lockId of the lock to be withdrawn
     */
-    function withdraw( uint256 _lockId, uint256 _index, uint256 _amount) external nonReentrant {
+    function withdraw(uint256 _lockId, uint256 _index, uint256 _amount) external nonReentrant {
         require(IStakingHelper(CONFIG.stakingHelper).isWithdrawlAllowed(), 'NOT ALLOWED');
         TokenLock storage userLock = LOCKS[_lockId];
         require(userLock.unlockTime <= block.timestamp ||  CONFIG.enableEarlyWithdrawal == 1, 'Early withdrawal is disabled');
@@ -182,7 +181,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         emit onWithdraw(_lockId, msg.sender, _amount);
     }
 
-    function changeConfig( uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address depositor, address feeAddress)  external onlyOwner returns(bool) {
+    function changeConfig(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address depositor, address feeAddress)  external onlyOwner returns(bool) {
         CONFIG.tierId = tierId;
         CONFIG.multiplier = multiplier;
         CONFIG.emergencyWithdrawlFee = emergencyWithdrawlFee;
@@ -260,7 +259,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         LOCKS[NONCE] = token_lock;
         tierTotalParticipationPoints += token_lock.iPP;
         USER_LOCKS[token_lock.owner].push(token_lock.lockId);
-        NONCE ++;
+        NONCE++;
         emit onLock(token_lock.lockId, token_lock.owner, token_lock.amount, token_lock.iPP);
         return true;
     }
