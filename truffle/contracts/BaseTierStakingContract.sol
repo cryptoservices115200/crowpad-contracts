@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./TransferHelper.sol";
 import './FullMath.sol';
 
 import "./EnumerableSet.sol";
-import "./Ownable.sol";
 import "./ReentrancyGuard.sol";
-import "./IERC20.sol";
 
 interface IMigrator {
-    function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime,  uint256 lockTime) external returns (bool);
+    function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
 }
-interface IStakingHelper{
+
+interface IStakingHelper {
     function isWithdrawlAllowed() external view returns (bool);
 }
 
