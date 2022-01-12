@@ -19,7 +19,7 @@
  */
 
 require("dotenv").config();
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 const getHDWallet = () => {
   for (const env of [process.env.MNEMONIC, process.env.PRIVATE_KEY]) {
@@ -34,12 +34,13 @@ module.exports = {
 
   networks: {
     development: {
-     host: "127.0.0.1",     // Localhost (default: none)
-     port: 8545,            // Standard Ethereum port (default: none)
-     network_id: "*",       // Any network (default: none)
+      host: "127.0.0.1",     // Localhost (default: none)
+      port: 7545,            // Standard Ethereum port (default: none)
+      network_id: "*",       // Any network (default: none)
+      from: process.env.PUBLIC_KEY
     },
     cronos: {
-      provider: new HDWalletProvider(getHDWallet(), "http://127.0.0.1:8545"), // TODO
+      provider: new HDWalletProvider(getHDWallet(), "https://cronos-testnet-3.crypto.org:8545"),
       network_id: "*",
       skipDryRun: true
     },
@@ -51,7 +52,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "0.8.0",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.8.10",    // Fetch exact version from solc-bin (default: truffle's version)
     }
   },
   db: {
