@@ -1,5 +1,5 @@
 const CronosToken = artifacts.require("CronosToken")
-const SimpleAirdropper = artifacts.require("SimpleAirdropper")
+const Airdropper = artifacts.require("Airdropper")
 const totalAmount = 1000
 
 module.exports = async function (deployer, networks, accounts) {
@@ -8,11 +8,11 @@ module.exports = async function (deployer, networks, accounts) {
   const cronosToken = await CronosToken.deployed()
 
   // deploy Airdropper
-  await deployer.deploy(SimpleAirdropper)
-  const simpleAirdropper = await SimpleAirdropper.deployed()
+  await deployer.deploy(Airdropper)
+  const airdropper = await Airdropper.deployed()
 
   // approve Airdropper as spender in token contract
-  cronosToken.approve(simpleAirdropper.address, totalAmount)
+  cronosToken.approve(airdropper.address, totalAmount)
 };
 
 
