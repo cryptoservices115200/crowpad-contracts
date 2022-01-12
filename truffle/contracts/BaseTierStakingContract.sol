@@ -3,11 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./TransferHelper.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import './FullMath.sol';
-
-import "./EnumerableSet.sol";
-import "./ReentrancyGuard.sol";
 
 interface IMigrator {
     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
@@ -20,6 +19,7 @@ interface IStakingHelper {
 contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
 
     using EnumerableSet for EnumerableSet.AddressSet;
+    using SafeERC20 for IERC20;
 
     uint256 public CONTRACT_VERSION = 1;
   
@@ -68,7 +68,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     event onMigrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime,  uint256 lockTime);
 
   
-    constructor(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address _depositor, address _tokenAddress, address _feeAddress, address _stakingHelper) public {
+    constructor(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address _depositor, address _tokenAddress, address _feeAddress, address _stakingHelper) {
         tokenAddress = _tokenAddress;
         CONFIG.tierId = tierId;
         CONFIG.multiplier = multiplier;
@@ -115,7 +115,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         }
 
         uint256 balanceBefore = IERC20(tokenAddress).balanceOf(address(this));
-        TransferHelper.safeTransferFrom(tokenAddress, address(msg.sender), address(this), totalAmount);
+        IERC20(tokenAddress).safeTransferFrom(address(msg.sender), address(this), totalAmount);
         uint256 amountIn = IERC20(tokenAddress).balanceOf(address(this)) - balanceBefore;
         require(amountIn == totalAmount, 'NOT ENOUGH TOKEN');
         for (uint256 i = 0; i < _lock_params.length; i++) {
@@ -171,13 +171,14 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         uint256 decreaseIPP = _amount * CONFIG.multiplier;
         tierTotalParticipationPoints -= decreaseIPP;
         LOCKS[_lockId].iPP -= decreaseIPP;
-        if(userLock.unlockTime> block.timestamp && CONFIG.emergencyWithdrawlFee>0){
-        uint256 fee = FullMath.mulDiv(_amount,CONFIG.emergencyWithdrawlFee , 1000);
-        TransferHelper.safeTransfer(tokenAddress, CONFIG.feeAddress, fee);
-        _amount = _amount - fee;
-        emit onFeeCharged(_lockId, msg.sender, fee);
+
+        if (userLock.unlockTime > block.timestamp && CONFIG.emergencyWithdrawlFee > 0) {
+            uint256 fee = FullMath.mulDiv(_amount,CONFIG.emergencyWithdrawlFee , 1000);
+            IERC20(tokenAddress).safeTransfer(CONFIG.feeAddress, fee);
+            _amount = _amount - fee;
+            emit onFeeCharged(_lockId, msg.sender, fee);
         }
-        TransferHelper.safeTransfer(tokenAddress, msg.sender, _amount);
+        IERC20(tokenAddress).safeTransfer(msg.sender, _amount);
         emit onWithdraw(_lockId, msg.sender, _amount);
     }
 
@@ -226,7 +227,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
 
         uint256 balance = IERC20(tokenAddress).balanceOf(address(this));
         require(amount <= balance, 'NOT ENOUGH TOKENS');
-        TransferHelper.safeApprove(tokenAddress, address(MIGRATOR), amount);
+        IERC20(tokenAddress).safeApprove(address(MIGRATOR), amount);
         MIGRATOR.migrate(userLock.lockId, userLock.owner, userLock.amount, userLock.iPP, userLock.unlockTime,userLock.lockTime);
         emit onMigrate(userLock.lockId, userLock.owner, userLock.amount, userLock.iPP, userLock.unlockTime,userLock.lockTime);
         userLock.amount = 0;
@@ -243,7 +244,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         require(lockTime > 0, 'lockTime');
 
         uint256 balanceBefore = IERC20(tokenAddress).balanceOf(address(this));
-        TransferHelper.safeTransferFrom(tokenAddress, address(msg.sender), address(this), amount);
+        IERC20(tokenAddress).safeTransferFrom(address(msg.sender), address(this), amount);
         uint256 amountIn = IERC20(tokenAddress).balanceOf(address(this)) - balanceBefore;
         require(amountIn == amount, 'NOT ENOUGH TOKEN');
         require(amount >= MINIMUM_DEPOSIT, 'MIN DEPOSIT');
@@ -295,7 +296,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     function changeEarlyWithdrawl(uint8 _enableEarlyWithdrawal) external onlyOwner {
         CONFIG.enableEarlyWithdrawal = _enableEarlyWithdrawal;
     }
-    
+
     function changeUnlockDuration(uint8 _unlockDuration) external onlyOwner {
         CONFIG.unlockDuration = _unlockDuration;
     }  
