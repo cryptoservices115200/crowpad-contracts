@@ -18,8 +18,8 @@
  *
  */
 
-require("dotenv").config();
-const HDWalletProvider = require("@truffle/hdwallet-provider");
+require("dotenv").config()
+const HDWalletProvider = require("@truffle/hdwallet-provider")
 
 const getHDWallet = () => {
   for (const env of [process.env.MNEMONIC, process.env.PRIVATE_KEY]) {
@@ -44,6 +44,17 @@ module.exports = {
       network_id: "*",
       skipDryRun: true
     },
+    ropsten: {
+      provider: new HDWalletProvider(getHDWallet(), `https://ropsten.infura.io/v3/${process.env.INFURA_PROJECT_ID}`),
+      network_id: '3',
+      skipDryRun: true
+    },
+  },
+
+  plugins: ['truffle-plugin-verify'],
+
+  api_keys: {
+    etherscan: process.env.ETHERSCAN_API_KEY
   },
 
   // Set default mocha options here, use special reporters etc.
