@@ -411,7 +411,7 @@ contract myBasicMCFCoin is Context,IERC20, Ownable{
         address recipient,
         uint256 amount
     ) public override returns (bool){
-        require(amount <= _allowances[sender][_msgSender()], "BEP20: transfer amount exceeds allowance");
+        require(amount <= _allowances[sender][_msgSender()], "CRONOS: transfer amount exceeds allowance");
 		_transfer(sender, recipient, amount);
 		_approve(sender, _msgSender(), _allowances[sender][_msgSender()] - amount);
 		return true;
@@ -419,18 +419,18 @@ contract myBasicMCFCoin is Context,IERC20, Ownable{
 
     
     function _transfer(address from, address to, uint256 amount) internal{
-        require(from != address(0), "BEP20: transfer from the zero address");
-		require(to != address(0), "BEP20: transfer to the zero address");
-        require(amount > 0,"BEP20: transfered amount must be greater than zero");
+        require(from != address(0), "CRONOS: transfer from the zero address");
+		require(to != address(0), "CRONOS: transfer to the zero address");
+        require(amount > 0,"CRONOS: transfered amount must be greater than zero");
         uint256 senderBalance = _balances[from];
-        require(senderBalance >= amount, "BEP20: transfer amount exceeds balance");
+        require(senderBalance >= amount, "CRONOS: transfer amount exceeds balance");
         _balances[from] = senderBalance - amount;
         _balances[to] += amount;
         emit Transfer(from, to,amount);
     }
     function _approve(address owner,address spender, uint256 amount) internal{
-        require(owner != address(0), "BEP20: approve from the zero address");
-		require(spender != address(0), "BEP20: approve to the zero address");
+        require(owner != address(0), "CRONOS: approve from the zero address");
+		require(spender != address(0), "CRONOS: approve to the zero address");
 		_allowances[owner][spender] = amount;
 		emit Approval(owner, spender, amount);
 

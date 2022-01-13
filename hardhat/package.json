@@ -13,6 +13,6 @@
     "dotenv": "^10.0.0"
   },
   "scripts": {
-    "deploy-contract-cronos": "npx hardhat run scripts/deploy-cronos-token.js --network testnet"
+    "deploy": "npx hardhat run scripts/deploy-cronos-token.js --network testnet"
   }
 }

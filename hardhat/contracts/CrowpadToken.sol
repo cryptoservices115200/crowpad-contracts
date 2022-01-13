@@ -1,6 +1,5 @@
-// SPDX-License-Identifier: Unlicensed
-
 pragma solidity ^0.8.4;
+// SPDX-License-Identifier: Unlicensed
 
 interface IERC20 {
     
@@ -430,7 +429,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract myMCFcoin is Context, IERC20, Ownable {
+contract CrowpadToken is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
     mapping (address => uint256) private _rOwned;
