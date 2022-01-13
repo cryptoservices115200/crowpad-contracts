@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
+    "@openzeppelin/test-helpers": "^0.5.15",
     "dotenv": "^10.0.0"
   },
   "scripts": {
-    "deploy": "npx hardhat run scripts/deploy-cronos-token.js --network testnet"
+    "deploy": "npx hardhat run scripts/deploy-cronos-token.js --network testnet",
+    "test": "npx hardhat --network testnet test test/sample-test.js"
   }
 }

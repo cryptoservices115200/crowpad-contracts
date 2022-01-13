@@ -6,7 +6,6 @@
 const hre = require("hardhat");
 
 async function main() {
-  /*
   const CrowpadSimpleTokenFactory = await hre.ethers.getContractFactory(
     "CrowpadSimpleTokenFactory"
   );
@@ -18,7 +17,7 @@ async function main() {
     "CrowpadSimpleTokenFactory deployed to:",
     crowpadSimpleTokenFactory.address
   );
-*/
+
   const CrowpadTokenFactory = await hre.ethers.getContractFactory(
     "CrowpadTokenFactory"
   );
@@ -27,6 +26,15 @@ async function main() {
   await crowpadTokenFactory.deployed();
 
   console.log("CrowpadTokenFactory deployed to:", crowpadTokenFactory.address);
+
+  const CrowpadAirdropper = await hre.ethers.getContractFactory(
+    "CrowpadAirdropper"
+  );
+  const crowpadAirdropper = await CrowpadAirdropper.deploy();
+
+  await crowpadAirdropper.deployed();
+
+  console.log("CrowpadAirdropper deployed to:", crowpadAirdropper.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
