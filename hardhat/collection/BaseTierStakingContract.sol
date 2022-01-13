@@ -17,7 +17,7 @@ interface IStakingHelper{
     function isWithdrawlAllowed() external view returns (bool);
 }
 
-contract CrowpadBaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
+contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
   using EnumerableSet for EnumerableSet.AddressSet;
   uint256 public CONTRACT_VERSION = 1;
   

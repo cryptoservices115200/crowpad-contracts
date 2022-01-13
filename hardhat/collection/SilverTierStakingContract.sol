@@ -9,9 +9,9 @@ import "./EnumerableSet.sol";
 import "./Ownable.sol";
 import "./ReentrancyGuard.sol";
 import "./IERC20.sol";
-import "./CrowpadBaseTierStakingContract.sol";
+import "./BaseTierStakingContract.sol";
 
-contract CrowpadSilverTierStakingContract is CrowpadBaseTierStakingContract {
+contract SilverTierStakingContract is BaseTierStakingContract {
   uint8 public tierId = 2;
   uint8 public multiplier = 20; // in 1000
   uint8 public emergencyWithdrawlFee = 20;
@@ -20,7 +20,7 @@ contract CrowpadSilverTierStakingContract is CrowpadBaseTierStakingContract {
   
   uint256 public unlockDuration = 6*30*24*60*60; // 6 months
   constructor( address _depositor, address _tokenAddress, address _feeAddress, address _stakingHelper)
-    CrowpadBaseTierStakingContract(tierId,multiplier,emergencyWithdrawlFee,enableEmergencyWithdrawl, unlockDuration,  enableRewards, _depositor, _tokenAddress, _feeAddress, _stakingHelper) {
+    BaseTierStakingContract(tierId,multiplier,emergencyWithdrawlFee,enableEmergencyWithdrawl, unlockDuration,  enableRewards, _depositor, _tokenAddress, _feeAddress, _stakingHelper) {
   }
   
 }
