@@ -14,8 +14,3 @@ module.exports = async function (deployer, networks, accounts) {
   // approve Airdropper as spender in token contract
   cronosToken.approve(airdropper.address, totalAmount)
 };
-
-
-
-
-
