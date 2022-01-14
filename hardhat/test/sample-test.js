@@ -7,6 +7,31 @@ const CrowpadSimpleTokenFactory = ethers.getContractFactory(
 const CrowpadTokenFactory = ethers.getContractFactory("CrowpadTokenFactory");
 const CrowpadAirdropper = ethers.getContractFactory("CrowpadAirdropper");
 const CronosToken = ethers.getContractFactory("CronosToken");
+const CrowpadFlexTierStakingContract = ethers.getContractFactory(
+  "CrowpadFlexTierStakingContract"
+);
+const CrowpadBronzeTierStakingContract = ethers.getContractFactory(
+  "CrowpadBronzeTierStakingContract"
+);
+const CrowpadSilverTierStakingContract = ethers.getContractFactory(
+  "CrowpadSilverTierStakingContract"
+);
+const CrowpadGoldTierStakingContract = ethers.getContractFactory(
+  "CrowpadGoldTierStakingContract"
+);
+
+const CrowpadSimpleTokenFactoryAddress =
+  "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+const CrowpadTokenFactoryAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+const CrowpadAirdropperAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+const CrowpadFlexTierStakingContractAddress =
+  "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+const CrowpadBronzeTierStakingContractAddress =
+  "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+const CrowpadSilverTierStakingContractAddress =
+  "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+const CrowpadGoldTierStakingContractAddress =
+  "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
 
 let owner;
 
@@ -15,7 +40,7 @@ describe("CrowpadSimpleTokenFactory", function () {
   beforeEach(async function () {
     crowpadSimpleTokenFactory = await (
       await CrowpadSimpleTokenFactory
-    ).attach("0xbA21b2fc2B8CCeeF11bD2b911b259B645bB6E92f");
+    ).attach(CrowpadSimpleTokenFactoryAddress);
     [owner] = await ethers.getSigners();
   });
   it("should set its deploy fee on cronos", async () => {
@@ -48,7 +73,7 @@ describe("CrowpadTokenFactory", function () {
   beforeEach(async function () {
     crowpadTokenFactory = await (
       await CrowpadTokenFactory
-    ).attach("0x1b864D11b202aB063aA325c7756098A314755aDE");
+    ).attach(CrowpadTokenFactoryAddress);
     [owner] = await ethers.getSigners();
   });
   it("should set its deploy fee on cronos", async () => {
@@ -81,29 +106,100 @@ describe("CrowpadTokenFactory", function () {
 describe("CrowpadAirdropper", function () {
   let crowpadAirdropper, cronosToken;
   beforeEach(async function () {
-    crowpadAirdropper = await CrowpadAirdropper.deploy();
-    cronosToken = await CronosToken.deploy();
+    crowpadAirdropper = (await CrowpadAirdropper).attach(
+      CrowpadAirdropperAddress
+    );
+    cronosToken = (await CronosToken).deploy();
     [owner] = await ethers.getSigners();
   });
-  it("should 3 must be as 3", async () => {
-    /*
-    console.log(
-      await crowpadAirdropper.checkAirdropValidity(
-        "0x9A676e781A523b5d0C0e43731313A708CB607508",
-        [addr1, addr2],
-        [10000000, 2000000]
-      )
+  it("should check airdrop validity", async () => {
+    await crowpadAirdropper.checkAirdropValidity(
+      cronosToken.address,
+      [
+        "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      ],
+      [1000000, 200000]
     );
-    */
-    console.log(
-      await crowpadAirdropper.checkAirdropValidity(
-        cronosToken.address,
-        [
-          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-          "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-        ],
-        [1000000, 200000]
-      )
+  });
+  it("should do airdrop", async () => {
+    await crowpadAirdropper.airdropToken(
+      cronosToken.address,
+      [
+        "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      ],
+      [1000000, 200000]
     );
+    expect(
+      cronosToken.balanceOf("0x70997970c51812dc3a010c7d01b50e0d17dc79c8")
+    ).equal(1000000);
+    expect(
+      cronosToken.balanceOf("0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc")
+    ).equal(1000000);
+  });
+  describe("CrowpadFlexTierStakingContract", function () {
+    let crowpadFlexTierStakingContract;
+    beforeEach(async function () {
+      crowpadFlexTierStakingContract = (
+        await CrowpadFlexTierStakingContract
+      ).attach(CrowpadFlexTierStakingContractAddress);
+    });
+    it("should stake liquidity", async () => {
+      await crowpadFlexTierStakingContract.updateTime(
+        0,
+        new Date(Date.now() + 100000).valueOf()
+      );
+      await crowpadFlexTierStakingContract.setDepositor(owner.address);
+      await crowpadFlexTierStakingContract.stake(owner.address, 10000);
+    });
+  });
+  describe("CrowpadBronzeTierStakingContract", function () {
+    let crowpadBronzeTierStakingContract;
+    beforeEach(async function () {
+      crowpadBronzeTierStakingContract = (
+        await CrowpadBronzeTierStakingContract
+      ).attach(CrowpadBronzeTierStakingContractAddress);
+    });
+    it("should stake liquidity", async () => {
+      await crowpadBronzeTierStakingContract.updateTime(
+        0,
+        new Date(Date.now() + 100000).valueOf()
+      );
+      await crowpadBronzeTierStakingContract.setDepositor(owner.address);
+      await crowpadBronzeTierStakingContract.stake(owner.address, 10000);
+    });
+  });
+  describe("CrowpadSilverTierStakingContract", function () {
+    let crowpadSilverTierStakingContract;
+    beforeEach(async function () {
+      crowpadSilverTierStakingContract = (
+        await CrowpadSilverTierStakingContract
+      ).attach(CrowpadSilverTierStakingContractAddress);
+    });
+    it("should stake liquidity", async () => {
+      await crowpadSilverTierStakingContract.updateTime(
+        0,
+        new Date(Date.now() + 100000).valueOf()
+      );
+      await crowpadSilverTierStakingContract.setDepositor(owner.address);
+      await crowpadSilverTierStakingContract.stake(owner.address, 10000);
+    });
+  });
+  describe("CrowpadGoldTierStakingContract", function () {
+    let crowpadGoldTierStakingContract;
+    beforeEach(async function () {
+      crowpadBronzeTierStakingContract = (
+        await CrowpadGoldTierStakingContract
+      ).attach(CrowpadGoldTierStakingContractAddress);
+    });
+    it("should stake liquidity", async () => {
+      await crowpadGoldTierStakingContract.updateTime(
+        0,
+        new Date(Date.now() + 100000).valueOf()
+      );
+      await crowpadGoldTierStakingContract.setDepositor(owner.address);
+      await crowpadGoldTierStakingContract.stake(owner.address, 10000);
+    });
   });
 });

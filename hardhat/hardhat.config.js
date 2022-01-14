@@ -14,13 +14,13 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 const getHDWallet = () => {
   const { MNEMONIC, PRIVATE_KEY } = process.env;
 
+  if (PRIVATE_KEY && PRIVATE_KEY !== "") {
+    return [PRIVATE_KEY];
+  }
   if (MNEMONIC && MNEMONIC !== "") {
     return {
       mnemonic: MNEMONIC,
     };
-  }
-  if (PRIVATE_KEY && PRIVATE_KEY !== "") {
-    return [PRIVATE_KEY];
   }
 
   throw Error("Private Key Not Set! Please set up .env");
