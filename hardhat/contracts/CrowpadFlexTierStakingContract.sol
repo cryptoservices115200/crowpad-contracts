@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./CrowpadBaseTierStakingContract.sol";
 
-contract FlexTierStakingContract is CrowpadBaseTierStakingContract {
+contract CrowpadFlexTierStakingContract is CrowpadBaseTierStakingContract {
 
     uint8 public tierId = 0;
     uint8 public multiplier = 10; // in 1000
@@ -15,22 +15,18 @@ contract FlexTierStakingContract is CrowpadBaseTierStakingContract {
     constructor(
         address _depositor,
         address _tokenAddress,
-        address _feeAddress,
-        address _stakingHelper
-    )
-        CrowpadBaseTierStakingContract(
-            tierId,
-            multiplier,
-            emergencyWithdrawlFee,
-            enableEmergencyWithdrawl,
-            unlockDuration,
-            enableRewards,
-            _depositor,
-            _tokenAddress,
-            _feeAddress,
-            _stakingHelper
-        )
-    {
+        address _feeAddress
+    ) CrowpadBaseTierStakingContract(
+        tierId,
+        multiplier,
+        emergencyWithdrawlFee,
+        enableEmergencyWithdrawl,
+        unlockDuration,
+        enableRewards,
+        _depositor,
+        _tokenAddress,
+        _feeAddress
+    ) {
         //
     }
   

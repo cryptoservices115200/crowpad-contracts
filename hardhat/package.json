@@ -14,7 +14,9 @@
     "dotenv": "^10.0.0"
   },
   "scripts": {
-    "deploy": "npx hardhat run scripts/deploy-cronos-token.js --network testnet",
-    "test": "npx hardhat --network testnet test test/sample-test.js"
+    "deploy": "npx hardhat run scripts/deploy-cronos-token.js --network development",
+    "test": "npx hardhat --network development test test/sample-test.js",
+    "deploy-cronos": "npx hardhat run scripts/deploy-cronos-token.js --network testnet",
+    "test-cronos": "npx hardhat --network testnet test test/sample-test.js"
   }
 }

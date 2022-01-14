@@ -15,22 +15,18 @@ contract CrowpadGoldTierStakingContract is CrowpadBaseTierStakingContract {
     constructor(
         address _depositor,
         address _tokenAddress,
-        address _feeAddress,
-        address _stakingHelper
-    )
-        CrowpadBaseTierStakingContract(
-            tierId,
-            multiplier,
-            emergencyWithdrawlFee,
-            enableEmergencyWithdrawl,
-            unlockDuration,
-            enableRewards,
-            _depositor,
-            _tokenAddress,
-            _feeAddress,
-            _stakingHelper
-        )
-    {
+        address _feeAddress
+    ) CrowpadBaseTierStakingContract(
+        tierId,
+        multiplier,
+        emergencyWithdrawlFee,
+        enableEmergencyWithdrawl,
+        unlockDuration,
+        enableRewards,
+        _depositor,
+        _tokenAddress,
+        _feeAddress
+    ) {
         //
     }
 }

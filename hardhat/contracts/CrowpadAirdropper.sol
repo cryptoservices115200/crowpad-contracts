@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
+import "hardhat/console.sol";
 contract CrowpadAirdropper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -16,7 +16,7 @@ contract CrowpadAirdropper {
     /**
      * @notice Call this function before attempting to 'airdropToken' to
      * check that you have balance and have inputted the data correctly
-     * @param _token ERC20 Token to airdrop
+     * @param _token ERC20 Token Address to airdrop
      * @param _recipients Array of recipients to drop to
      * @param _amounts Base units to send to each recipient
      * @return isValid - true or false
@@ -39,12 +39,11 @@ contract CrowpadAirdropper {
         uint8 len = uint8(_recipients.length);
         if (len != _amounts.length) return (false, "Mistmatching arrays", 0);
         if (len > RECIPIENT_LIMIT) return (false, "Maximum 200 recipients", 0);
-
         uint256 total = 0;
         for (uint8 i = 0; i < len; i++) {
             total = total.add(_amounts[i]);
         }
-
+        /*
         uint256 allowance = _token.allowance(msg.sender, address(this));
         if (total > allowance)
             return (
@@ -52,7 +51,8 @@ contract CrowpadAirdropper {
                 "Insufficient allowance - you must first approve this contract to spend the token",
                 total
             );
-
+        */
+        console.log("xxx");
         uint256 balance = _token.balanceOf(msg.sender);
         if (total > balance)
             return (
