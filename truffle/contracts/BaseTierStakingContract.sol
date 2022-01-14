@@ -68,6 +68,12 @@ contract BaseTierStakingContract is StakingHelper {
         address _depositor,
         address _tokenAddress,
         address _feeAddress
+    ) StakingHelper(
+        0,
+        0,
+        0,
+        0,
+        0x0f2257997A3aF27C027377e4bdeed583F804cc83
     ) {
         token = IERC20(_tokenAddress);
         config.tierId = _tierId;

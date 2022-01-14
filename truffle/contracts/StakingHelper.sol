@@ -26,7 +26,6 @@ contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
         uint256 privateSaleTotalPP;
         uint256 withdrawalSuspensionStartTime;
         uint256 withdrawalSuspensionEndTime;
-        address tokenAddress;
     }
 
     // mapping(address => uint256[]) public privateSaleUserLockerIds;
@@ -38,14 +37,12 @@ contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
     constructor(
         uint256 _startTimeForDeposit,
         uint256 _endTimeForDeposit,
-        address _tokenAddress,
         uint256 _ppMultiplier,
         uint256 _privateSaleMultiplier,
         address _privateSaleLockerAddress
     ) {
         SETTINGS.startTimeForDeposit = _startTimeForDeposit;
         SETTINGS.endTimeForDeposit = _endTimeForDeposit;
-        SETTINGS.tokenAddress = _tokenAddress;
         SETTINGS.ppMultiplier = _ppMultiplier;
         SETTINGS.privateSaleMultiplier = _privateSaleMultiplier;
         SETTINGS.withdrawalSuspensionEndTime = 0;
