@@ -14,7 +14,7 @@ import "./Pausable.sol";
 //     function LOCKS(uint256 lockId) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, string memory);
 // }
 
-contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
+contract CrowpadStakingHelper is Ownable, ReentrancyGuard, Pausable {
 
     using SafeERC20 for IERC20;
     

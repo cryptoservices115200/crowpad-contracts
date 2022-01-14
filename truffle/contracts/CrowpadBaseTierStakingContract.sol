@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './StakingHelper.sol';
+import './CrowpadStakingHelper.sol';
 
 interface IMigrator {
     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
 }
 
-contract BaseTierStakingContract is StakingHelper {
+contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
 
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
@@ -68,7 +68,7 @@ contract BaseTierStakingContract is StakingHelper {
         address _depositor,
         address _tokenAddress,
         address _feeAddress
-    ) StakingHelper(
+    ) CrowpadStakingHelper(
         0,
         0,
         0,
