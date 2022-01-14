@@ -16,6 +16,7 @@
   "scripts": {
     "deploy": "npx hardhat run scripts/deploy-cronos-token.js --network development",
     "test": "npx hardhat --network development test test/sample-test.js",
+    "build": "npx hardhat compile",
     "deploy-cronos": "npx hardhat run scripts/deploy-cronos-token.js --network testnet",
     "test-cronos": "npx hardhat --network testnet test test/sample-test.js"
   }
