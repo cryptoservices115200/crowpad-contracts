@@ -9,15 +9,10 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import './FullMath.sol';
 import "./Pausable.sol";
 
-interface IStakingTierContract {
-    function singleLock(address payable _owner, uint256 _amount) external;
-    function getPoolPercentagesWithUser(address _user) external view returns (uint256, uint256);
-}
-
-interface ITokenLocker {
-    function convertSharesToTokens(address _token, uint256 _shares) external view returns (uint256);
-    function LOCKS(uint256 lockId) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, string memory);
-}
+// interface ITokenLocker {
+//     function convertSharesToTokens(address _token, uint256 _shares) external view returns (uint256);
+//     function LOCKS(uint256 lockId) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, string memory);
+// }
 
 contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
 
@@ -34,11 +29,10 @@ contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
         address tokenAddress;
     }
 
-    address[] public stakingTierAddresses;
-    mapping(address => uint256[]) public privateSaleUserLockerIds;
+    // mapping(address => uint256[]) public privateSaleUserLockerIds;
     uint256[] public privateSaleLockerIds;
     address public privateSaleLockerAddress;
-    ITokenLocker private tokenLocker;
+    // ITokenLocker private tokenLocker;
     Settings public SETTINGS;
 
     constructor(
@@ -63,27 +57,23 @@ contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
        revert('No Direct Transfer');
     }
 
-    function setTierAddress(address[] memory _stakingTierAddresses) external onlyOwner {
-        stakingTierAddresses = _stakingTierAddresses;
-    }
+    // function getUserSPP(address _user) external view returns (uint256) {
+    //     uint256 userTotalPP = 0;
+    //     uint256 tierTotalPP = 0;
 
-    function getUserSPP(address _user) external view returns (uint256) {
-        uint256 userTotalPP = 0;
-        uint256 tierTotalPP = 0;
+    //     for (uint256 i = 0; i < stakingTierAddresses.length; i++) {
+    //         (uint256 _userTierPP, uint256 _tierPP) = IStakingTierContract(stakingTierAddresses[i]).getPoolPercentagesWithUser(_user);
+    //         userTotalPP += _userTierPP;
+    //         tierTotalPP += _tierPP;
+    //     }
 
-        for (uint256 i = 0; i < stakingTierAddresses.length; i++) {
-            (uint256 _userTierPP, uint256 _tierPP) = IStakingTierContract(stakingTierAddresses[i]).getPoolPercentagesWithUser(_user);
-            userTotalPP += _userTierPP;
-            tierTotalPP += _tierPP;
-        }
+    //     for (uint256 i = 0; i < privateSaleUserLockerIds[_user].length; i++) {
+    //         userTotalPP += _getLockedPrivateSaleTokens(privateSaleUserLockerIds[_user][i]) * SETTINGS.privateSaleMultiplier;
+    //     }
 
-        for (uint256 i = 0; i < privateSaleUserLockerIds[_user].length; i++) {
-            userTotalPP += _getLockedPrivateSaleTokens(privateSaleUserLockerIds[_user][i]) * SETTINGS.privateSaleMultiplier;
-        }
-
-        tierTotalPP += SETTINGS.privateSaleTotalPP;
-        return FullMath.mulDiv(userTotalPP, SETTINGS.ppMultiplier, tierTotalPP);
-    }
+    //     tierTotalPP += SETTINGS.privateSaleTotalPP;
+    //     return FullMath.mulDiv(userTotalPP, SETTINGS.ppMultiplier, tierTotalPP);
+    // }
 
     function depositEnabled() external view returns (bool) {
         return _depositEnabled();
@@ -102,46 +92,46 @@ contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
         IERC20(_token).transfer(_to, _amount);
     }
 
-    function setPrivateSaleLockerIds(uint256[] memory _privateSaleLockerIds, address[] memory _privateSaleLockerOwners) external onlyOwner {
-        require(_privateSaleLockerIds.length == _privateSaleLockerOwners.length, "Length Not Matched");
+    // function setPrivateSaleLockerIds(uint256[] memory _privateSaleLockerIds, address[] memory _privateSaleLockerOwners) external onlyOwner {
+    //     require(_privateSaleLockerIds.length == _privateSaleLockerOwners.length, "Length Not Matched");
 
-        for (uint256 i = 0; i < _privateSaleLockerOwners.length; i++) {
-            address owner = _privateSaleLockerOwners[i];
-            delete privateSaleUserLockerIds[owner];
-        }
+    //     for (uint256 i = 0; i < _privateSaleLockerOwners.length; i++) {
+    //         address owner = _privateSaleLockerOwners[i];
+    //         delete privateSaleUserLockerIds[owner];
+    //     }
 
-        for (uint256 i = 0; i < _privateSaleLockerIds.length; i++) {
-            address owner = _privateSaleLockerOwners[i];
-            uint256 lockId = _privateSaleLockerIds[i];
+    //     for (uint256 i = 0; i < _privateSaleLockerIds.length; i++) {
+    //         address owner = _privateSaleLockerOwners[i];
+    //         uint256 lockId = _privateSaleLockerIds[i];
 
-            privateSaleUserLockerIds[owner].push(lockId);
-        }
+    //         privateSaleUserLockerIds[owner].push(lockId);
+    //     }
 
-        privateSaleLockerIds = _privateSaleLockerIds;
-    }
+    //     privateSaleLockerIds = _privateSaleLockerIds;
+    // }
 
     function updatePrivateSaleTotalPP(uint256 _privateSaleTotalPP) external onlyOwner {
         SETTINGS.privateSaleTotalPP = _privateSaleTotalPP;
     }
 
-    function getLockedPrivateSaleTokens(uint256 lockerId) external view returns (uint256) {
-        return _getLockedPrivateSaleTokens(lockerId);
-    }
+    // function getLockedPrivateSaleTokens(uint256 lockerId) external view returns (uint256) {
+    //     return _getLockedPrivateSaleTokens(lockerId);
+    // }
 
-    function _getLockedPrivateSaleTokens(uint256 lockerId) internal view returns (uint256) {
-        ( , uint256 sharesDeposited, uint256 sharesWithdrawn ,,,,,) = tokenLocker.LOCKS(lockerId);
-       return tokenLocker.convertSharesToTokens(SETTINGS.tokenAddress,sharesDeposited - sharesWithdrawn); 
-    }
+    // function _getLockedPrivateSaleTokens(uint256 lockerId) internal view returns (uint256) {
+    //     ( , uint256 sharesDeposited, uint256 sharesWithdrawn ,,,,,) = tokenLocker.LOCKS(lockerId);
+    //    return tokenLocker.convertSharesToTokens(SETTINGS.tokenAddress,sharesDeposited - sharesWithdrawn); 
+    // }
 
-    function updatePrivateSaleTotalPPFromContract() external onlyOwner {
-        uint256 privateSaleTotalPP = 0;
-        for (uint256 i = 0; i < privateSaleLockerIds.length; i++) {
-            privateSaleTotalPP += (_getLockedPrivateSaleTokens(privateSaleLockerIds[i]) * SETTINGS.privateSaleMultiplier);
-        }
-        SETTINGS.privateSaleTotalPP = privateSaleTotalPP;
-    }
+    // function updatePrivateSaleTotalPPFromContract() external onlyOwner {
+    //     uint256 privateSaleTotalPP = 0;
+    //     for (uint256 i = 0; i < privateSaleLockerIds.length; i++) {
+    //         privateSaleTotalPP += (_getLockedPrivateSaleTokens(privateSaleLockerIds[i]) * SETTINGS.privateSaleMultiplier);
+    //     }
+    //     SETTINGS.privateSaleTotalPP = privateSaleTotalPP;
+    // }
 
-    function isWithdrawlAllowed() external view returns (bool) {
+    function isWithdrawlAllowed() internal view returns (bool) {
         return block.timestamp < SETTINGS.withdrawalSuspensionStartTime || block.timestamp > SETTINGS.withdrawalSuspensionEndTime;
     }
 

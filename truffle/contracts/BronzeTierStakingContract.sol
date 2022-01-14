@@ -15,7 +15,7 @@ contract BronzeTierStakingContract is BaseTierStakingContract {
     constructor(
         address _depositor,
         address _tokenAddress,
-        address _feeAddress,
+        address _feeAddress
     ) BaseTierStakingContract(
         tierId,
         multiplier,
@@ -25,7 +25,7 @@ contract BronzeTierStakingContract is BaseTierStakingContract {
         enableRewards,
         _depositor,
         _tokenAddress,
-        _feeAddress,
+        _feeAddress
     ) {
         //
     }

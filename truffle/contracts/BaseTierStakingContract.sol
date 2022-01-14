@@ -7,7 +7,7 @@ interface IMigrator {
     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
 }
 
-contract BaseTierStakingContract is IMigrator, StakingHelper {
+contract BaseTierStakingContract is StakingHelper {
 
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
@@ -67,7 +67,7 @@ contract BaseTierStakingContract is IMigrator, StakingHelper {
         uint8 _enableRewards,
         address _depositor,
         address _tokenAddress,
-        address _feeAddress,
+        address _feeAddress
     ) {
         token = IERC20(_tokenAddress);
         config.tierId = _tierId;
@@ -77,15 +77,15 @@ contract BaseTierStakingContract is IMigrator, StakingHelper {
         config.enableEarlyWithdrawal = _enableEarlyWithdrawal;
         config.depositor = _depositor;
         config.feeAddress = _feeAddress;
-        config.enableRewards = enableRewards;
+        config.enableRewards = _enableRewards;
     }  
 
-    /**
-    * @notice set the migrator contract which allows the lock to be migrated
-    */
-    function setMigrator(IMigrator _migrator) external onlyOwner {
-        migrator = _migrator;
-    }  
+    // /**
+    // * @notice set the migrator contract which allows the lock to be migrated
+    // */
+    // function setMigrator(IMigrator _migrator) external onlyOwner {
+    //     migrator = _migrator;
+    // }  
 
     /**
     * @notice Creates one lock for the specified token
@@ -226,55 +226,55 @@ contract BaseTierStakingContract is IMigrator, StakingHelper {
         return (userLockIPP, tierTotalParticipationPoints);
     }
 
-    /**
-    * @notice migrates to the next locker version, only callable by lock owners
-    */
-    function migrateToNewVersion(uint256 _lockId) external nonReentrant {
-        require(address(migrator) != address(0), "NOT SET");
-        TokenLock storage userLock = locks[_lockId];
-        require(userLock.owner == msg.sender, 'OWNER');
-        uint256 amount = userLock.amount;
-        require(amount > 0, 'AMOUNT');
+    // /**
+    // * @notice migrates to the next locker version, only callable by lock owners
+    // */
+    // function migrateToNewVersion(uint256 _lockId) external nonReentrant {
+    //     require(address(migrator) != address(0), "NOT SET");
+    //     TokenLock storage userLock = locks[_lockId];
+    //     require(userLock.owner == msg.sender, 'OWNER');
+    //     uint256 amount = userLock.amount;
+    //     require(amount > 0, 'AMOUNT');
 
-        uint256 balance = token.balanceOf(address(this));
-        require(amount <= balance, 'NOT ENOUGH TOKENS');
-        token.safeApprove(address(migrator), amount);
-        migrator.migrate(userLock.lockId, userLock.owner, userLock.amount, userLock.iPP, userLock.unlockTime, userLock.lockTime);
-        emit OnMigrate(userLock.lockId, userLock.owner, userLock.amount, userLock.iPP, userLock.unlockTime, userLock.lockTime);
-        userLock.amount = 0;
-        tierTotalParticipationPoints -= userLock.iPP;
-        userLock.iPP = 0;
-    }
+    //     uint256 balance = token.balanceOf(address(this));
+    //     require(amount <= balance, 'NOT ENOUGH TOKENS');
+    //     token.safeApprove(address(migrator), amount);
+    //     migrator.migrate(userLock.lockId, userLock.owner, userLock.amount, userLock.iPP, userLock.unlockTime, userLock.lockTime);
+    //     emit OnMigrate(userLock.lockId, userLock.owner, userLock.amount, userLock.iPP, userLock.unlockTime, userLock.lockTime);
+    //     userLock.amount = 0;
+    //     tierTotalParticipationPoints -= userLock.iPP;
+    //     userLock.iPP = 0;
+    // }
 
-    function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) override external returns(bool) {
-        require(allowedMigrators.contains(msg.sender), "FORBIDDEN");
-        require(lockId > 0, 'POSITIVE LOCKID');
-        require(owner != address(0), 'ADDRESS');
-        require(amount > 0, 'AMOUNT');
-        require(unlockTime > 0, 'unlockTime');
-        require(lockTime > 0, 'lockTime');
+    // function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) override external returns (bool) {
+    //     require(allowedMigrators.contains(msg.sender), "FORBIDDEN");
+    //     require(lockId > 0, 'POSITIVE LOCKID');
+    //     require(owner != address(0), 'ADDRESS');
+    //     require(amount > 0, 'AMOUNT');
+    //     require(unlockTime > 0, 'unlockTime');
+    //     require(lockTime > 0, 'lockTime');
 
-        uint256 balanceBefore = token.balanceOf(address(this));
-        token.safeTransferFrom(address(msg.sender), address(this), amount);
-        uint256 amountIn = token.balanceOf(address(this)) - balanceBefore;
-        require(amountIn == amount, 'NOT ENOUGH TOKEN');
-        require(amount >= minimumDeposit, 'MIN DEPOSIT');
-        TokenLock memory tokenLock;
-        tokenLock.lockId = nonce;
-        tokenLock.owner = owner;
-        users.add(owner);
-        tokenLock.amount = amount;
-        tokenLock.lockTime = lockTime;
-        tokenLock.unlockTime = unlockTime;
-        tokenLock.iPP = ipp;
-        // record the lock globally
-        locks[nonce] = tokenLock;
-        tierTotalParticipationPoints += tokenLock.iPP;
-        userLocks[tokenLock.owner].push(tokenLock.lockId);
-        nonce++;
-        emit OnLock(tokenLock.lockId, tokenLock.owner, tokenLock.amount, tokenLock.iPP);
-        return true;
-    }
+    //     uint256 balanceBefore = token.balanceOf(address(this));
+    //     token.safeTransferFrom(address(msg.sender), address(this), amount);
+    //     uint256 amountIn = token.balanceOf(address(this)) - balanceBefore;
+    //     require(amountIn == amount, 'NOT ENOUGH TOKEN');
+    //     require(amount >= minimumDeposit, 'MIN DEPOSIT');
+    //     TokenLock memory tokenLock;
+    //     tokenLock.lockId = nonce;
+    //     tokenLock.owner = owner;
+    //     users.add(owner);
+    //     tokenLock.amount = amount;
+    //     tokenLock.lockTime = lockTime;
+    //     tokenLock.unlockTime = unlockTime;
+    //     tokenLock.iPP = ipp;
+    //     // record the lock globally
+    //     locks[nonce] = tokenLock;
+    //     tierTotalParticipationPoints += tokenLock.iPP;
+    //     userLocks[tokenLock.owner].push(tokenLock.lockId);
+    //     nonce++;
+    //     emit OnLock(tokenLock.lockId, tokenLock.owner, tokenLock.amount, tokenLock.iPP);
+    //     return true;
+    // }
 
     function getLockedUsersLength() external view returns(uint256) {
         return users.length();
