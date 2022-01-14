@@ -16,7 +16,6 @@ contract SilverTierStakingContract is BaseTierStakingContract {
         address _depositor,
         address _tokenAddress,
         address _feeAddress,
-        address _stakingHelper
     ) BaseTierStakingContract(
         tierId,
         multiplier,
@@ -27,7 +26,6 @@ contract SilverTierStakingContract is BaseTierStakingContract {
         _depositor,
         _tokenAddress,
         _feeAddress,
-        _stakingHelper
     ) {
         //
     }  

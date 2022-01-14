@@ -1,22 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import './FullMath.sol';
+import './StakingHelper.sol';
 
 interface IMigrator {
     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
 }
 
-interface IStakingHelper {
-    function isWithdrawlAllowed() external view returns (bool);
-}
-
-contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
+contract BaseTierStakingContract is IMigrator, StakingHelper {
 
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
@@ -41,7 +32,6 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         uint256 unlockDuration; // epoch timestamp
         address depositor;  // Depositor contract who is allowed to stake
         address feeAddress; // Address to receive the fee
-        address stakingHelper; // Address of the staking helper contract
     }
 
     struct LockParams {
@@ -78,7 +68,6 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         address _depositor,
         address _tokenAddress,
         address _feeAddress,
-        address _stakingHelper
     ) {
         token = IERC20(_tokenAddress);
         config.tierId = _tierId;
@@ -87,7 +76,6 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         config.unlockDuration = _unlockDuration;
         config.enableEarlyWithdrawal = _enableEarlyWithdrawal;
         config.depositor = _depositor;
-        config.stakingHelper = _stakingHelper;
         config.feeAddress = _feeAddress;
         config.enableRewards = enableRewards;
     }  
@@ -107,7 +95,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     * amount: must be >= 100 units
     * Fails is amount < 100
     */
-    function singleLock(address payable _owner, uint256 _amount) external {
+    function singleLock(address payable _owner, uint256 _amount) public {
         LockParams memory param = LockParams(_owner, _amount);
         LockParams[] memory params = new LockParams[](1);
         params[0] = param;
@@ -159,6 +147,19 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     function lock(LockParams[] memory _lockParams) external {
         _lock(_lockParams);
     }
+
+    /**
+    * @notice stake a specified amount to owner
+    * @param _owner staking owner
+    * @param _amount amount of token to stake
+    */
+    function stake(address payable _owner, uint256 _amount) external nonReentrant notPaused {
+        require(_depositEnabled(), "Deposit is not enabled");
+        require(_owner != address(0), 'No ADDRESS');
+        require(_amount > 0, 'Amount of token to stake must be greater than 0');
+
+        singleLock(_owner, _amount);
+    }
   
     /**
     * @notice withdraw a specified amount from a lock. _amount is the ideal amount to be withdrawn.
@@ -167,7 +168,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     * @param _lockId the lockId of the lock to be withdrawn
     */
     function withdraw(uint256 _lockId, uint256 _index, uint256 _amount) external nonReentrant {
-        require(IStakingHelper(config.stakingHelper).isWithdrawlAllowed(), 'NOT ALLOWED');
+        require(isWithdrawlAllowed(), 'NOT ALLOWED');
 
         TokenLock storage userLock = locks[_lockId];
         require(userLock.unlockTime <= block.timestamp || config.enableEarlyWithdrawal == 1, 'Early withdrawal is disabled');
@@ -210,10 +211,6 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
   
     function setDepositor(address _depositor) external onlyOwner {
         config.depositor = _depositor;
-    }
-
-    function setStakingHelper(address _stakingHelper) external onlyOwner {
-        config.stakingHelper = _stakingHelper;
     }
 
     function getPoolPercentagesWithUser(address _user) external view returns(uint256, uint256) {

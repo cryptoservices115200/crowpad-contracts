@@ -62,16 +62,6 @@ contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
     receive() external payable {
        revert('No Direct Transfer');
     }
-    
-    function stake(address payable _owner, uint256 _amount, uint8 _tierId) external nonReentrant notPaused {
-        require(_tierId < stakingTierAddresses.length, "TierId is out of range");
-        require(_depositEnabled(), "Deposit is not enabled");
-        require(_owner != address(0), 'No ADDR');
-        require(_amount > 0, 'No AMT');
-        IERC20(SETTINGS.tokenAddress).safeTransferFrom(msg.sender, address(this), _amount);
-        IERC20(SETTINGS.tokenAddress).safeApprove(stakingTierAddresses[_tierId], _amount);
-        IStakingTierContract(stakingTierAddresses[_tierId]).singleLock(_owner, _amount);
-    }
 
     function setTierAddress(address[] memory _stakingTierAddresses) external onlyOwner {
         stakingTierAddresses = _stakingTierAddresses;
