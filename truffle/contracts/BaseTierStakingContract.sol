@@ -168,17 +168,20 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
     */
     function withdraw(uint256 _lockId, uint256 _index, uint256 _amount) external nonReentrant {
         require(IStakingHelper(config.stakingHelper).isWithdrawlAllowed(), 'NOT ALLOWED');
+
         TokenLock storage userLock = locks[_lockId];
         require(userLock.unlockTime <= block.timestamp || config.enableEarlyWithdrawal == 1, 'Early withdrawal is disabled');
         require(userLocks[msg.sender].length > _index, 'Index OOB');
         require(userLocks[msg.sender][_index] == _lockId, 'lockId NOT MATCHED');
         require(userLock.owner == msg.sender, 'OWNER');
+
         uint256 balance = token.balanceOf(address(this));
         uint256 withdrawableAmount = locks[_lockId].amount;
         require(withdrawableAmount > 0, 'NO TOKENS');
-        require(_amount <= withdrawableAmount, 'AMOUNT<WAMNT');
+        require(_amount <= withdrawableAmount, 'AMOUNT < WAMNT');
         require(_amount <= balance, 'NOT ENOUGH TOKENS');
-        locks[_lockId].amount = withdrawableAmount-_amount;
+
+        locks[_lockId].amount = withdrawableAmount - _amount;
         uint256 decreaseIPP = _amount * config.multiplier;
         tierTotalParticipationPoints -= decreaseIPP;
         locks[_lockId].iPP -= decreaseIPP;
@@ -193,7 +196,7 @@ contract BaseTierStakingContract is Ownable, ReentrancyGuard, IMigrator {
         emit OnWithdraw(_lockId, msg.sender, _amount);
     }
 
-    function changeConfig(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address depositor, address feeAddress) external onlyOwner returns(bool) {
+    function changeConfig(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address depositor, address feeAddress) external onlyOwner returns (bool) {
         config.tierId = tierId;
         config.multiplier = multiplier;
         config.emergencyWithdrawlFee = emergencyWithdrawlFee;
