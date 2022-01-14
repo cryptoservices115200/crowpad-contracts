@@ -1,5 +1,6 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
+// SPDX-License-Identifier: Unlicensed
+
 abstract contract Context {
     function _msgSender() internal view virtual returns (address) {
         return msg.sender;
@@ -333,7 +334,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
 }
 
 
-contract myBasicMCFCoin is Context,IERC20, Ownable{
+contract CrowpadSimpleToken is Context,IERC20, Ownable{
     using Address for address;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -411,7 +412,7 @@ contract myBasicMCFCoin is Context,IERC20, Ownable{
         address recipient,
         uint256 amount
     ) public override returns (bool){
-        require(amount <= _allowances[sender][_msgSender()], "BEP20: transfer amount exceeds allowance");
+        require(amount <= _allowances[sender][_msgSender()], "CRONOS: transfer amount exceeds allowance");
 		_transfer(sender, recipient, amount);
 		_approve(sender, _msgSender(), _allowances[sender][_msgSender()] - amount);
 		return true;
@@ -419,21 +420,131 @@ contract myBasicMCFCoin is Context,IERC20, Ownable{
 
     
     function _transfer(address from, address to, uint256 amount) internal{
-        require(from != address(0), "BEP20: transfer from the zero address");
-		require(to != address(0), "BEP20: transfer to the zero address");
-        require(amount > 0,"BEP20: transfered amount must be greater than zero");
+        require(from != address(0), "CRONOS: transfer from the zero address");
+		require(to != address(0), "CRONOS: transfer to the zero address");
+        require(amount > 0,"CRONOS: transfered amount must be greater than zero");
         uint256 senderBalance = _balances[from];
-        require(senderBalance >= amount, "BEP20: transfer amount exceeds balance");
+        require(senderBalance >= amount, "CRONOS: transfer amount exceeds balance");
         _balances[from] = senderBalance - amount;
         _balances[to] += amount;
         emit Transfer(from, to,amount);
     }
     function _approve(address owner,address spender, uint256 amount) internal{
-        require(owner != address(0), "BEP20: approve from the zero address");
-		require(spender != address(0), "BEP20: approve to the zero address");
+        require(owner != address(0), "CRONOS: approve from the zero address");
+		require(spender != address(0), "CRONOS: approve to the zero address");
 		_allowances[owner][spender] = amount;
 		emit Approval(owner, spender, amount);
 
 
     }    
+}
+
+abstract contract ReentrancyGuard {
+
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    uint256 private _status;
+
+    constructor() {
+        _status = _NOT_ENTERED;
+    }
+
+
+    modifier nonReentrant() {
+        // On the first call to nonReentrant, _notEntered will be true
+        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+
+        // Any calls to nonReentrant after this point will fail
+        _status = _ENTERED;
+
+        _;
+
+        // By storing the original value once again, a refund is triggered (see
+        // https://eips.ethereum.org/EIPS/eip-2200)
+        _status = _NOT_ENTERED;
+    }
+}
+
+abstract contract Roles{
+    address public _owner;
+    address private _previousOwner;
+    uint256 public _lockTime;
+    constructor(){
+        _setOwner(msg.sender);
+    }
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    modifier onlyOwner() {
+        require(owner() == msg.sender, "Ownable: caller is not the owner");
+        _;
+    }
+
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+    }
+
+
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
+    }
+
+
+        //Locks the contract for owner for the amount of time provided
+    function lock(uint256 time) public virtual onlyOwner {
+        _previousOwner = _owner;
+        _owner = address(0);
+        _lockTime = time;
+        emit OwnershipTransferred(_owner, address(0));
+    }
+
+    //Unlocks the contract for owner when _lockTime is exceeds
+    function unlock() public virtual {
+        require(_previousOwner == msg.sender, "You don't have permission to unlock.");
+        require(block.timestamp > _lockTime , "Contract is locked.");
+        emit OwnershipTransferred(_owner, _previousOwner);
+        _owner = _previousOwner;
+    }
+     function _setOwner(address newOwner) private {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+}
+
+
+contract CrowpadSimpleTokenFactory is Roles, ReentrancyGuard{
+    address payable feesAddress;
+    uint256 public deployFee = 0.8 ether;
+
+    event ContractDeployed(address from, address owner, address deployed);
+
+    function setDeployFee(uint256 newDeployFee_) external onlyOwner{
+        deployFee = newDeployFee_;
+    }
+
+    function deployNewInstance(string memory _NAME, string memory _SYMBOL, uint256 _DECIMALS,
+        uint256 _supply, address routerAddress, address tokenOwner) public payable{
+        require(msg.value >= deployFee, 'Insufficient funds sent for deploy');
+        CrowpadSimpleToken newInstance = new CrowpadSimpleToken(_NAME,_SYMBOL,_DECIMALS,_supply, routerAddress, tokenOwner);
+
+        emit ContractDeployed(msg.sender, tokenOwner, address(newInstance));
+    }
+
+    function withdrawFees() external onlyOwner{
+        uint256 currentContractBalance = address(this).balance;
+        feesAddress.transfer(currentContractBalance);
+
+    }
+
+    function updateFeeAddress(address payable newAddress) external onlyOwner{
+        feesAddress=newAddress;
+    }
 }

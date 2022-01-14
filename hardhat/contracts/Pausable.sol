@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-// Inheritance
-import "./Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Pausable is Ownable {
+
     uint public lastPauseTime;
     bool public paused;
+
+    event PauseChanged(bool isPaused);
 
     constructor() {
         // This contract is abstract, and thus cannot be instantiated directly
@@ -35,8 +37,6 @@ contract Pausable is Ownable {
         // Let everyone know that our pause state has changed.
         emit PauseChanged(paused);
     }
-
-    event PauseChanged(bool isPaused);
 
     modifier notPaused {
         require(!paused, "This action cannot be performed while the contract is paused");

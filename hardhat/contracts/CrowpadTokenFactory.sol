@@ -1,4 +1,4 @@
-import "./MyMCFcoinsimple.sol";
+import "./CrowpadToken.sol";
 
 pragma solidity ^0.8.4;
 // SPDX-License-Identifier: Unlicensed
@@ -85,7 +85,7 @@ abstract contract Roles{
 }
 
 
-contract MCFSimpleFactory is Roles, ReentrancyGuard{
+contract CrowpadTokenFactory is Roles, ReentrancyGuard{
     address payable feesAddress;
     uint256 public deployFee = 0.8 ether;
 
@@ -96,10 +96,11 @@ contract MCFSimpleFactory is Roles, ReentrancyGuard{
     }
 
     function deployNewInstance(string memory _NAME, string memory _SYMBOL, uint256 _DECIMALS,
-        uint256 _supply, address routerAddress, address tokenOwner) public payable{
+     uint256 _supply, uint256 _txFee,uint256 _lpFee,uint256 _DexFee,
+     address routerAddress,address feeaddress,
+     address tokenOwner) public payable{
         require(msg.value >= deployFee, 'Insufficient funds sent for deploy');
-        myBasicMCFCoin newInstance = new myBasicMCFCoin(_NAME,_SYMBOL,_DECIMALS,_supply, routerAddress, tokenOwner);
-
+        CrowpadToken newInstance = new CrowpadToken(_NAME,_SYMBOL,_DECIMALS,_supply,_txFee,_lpFee,_DexFee,routerAddress,feeaddress,tokenOwner);
         emit ContractDeployed(msg.sender, tokenOwner, address(newInstance));
     }
 
@@ -108,7 +109,6 @@ contract MCFSimpleFactory is Roles, ReentrancyGuard{
         feesAddress.transfer(currentContractBalance);
 
     }
-
     function updateFeeAddress(address payable newAddress) external onlyOwner{
         feesAddress=newAddress;
     }
