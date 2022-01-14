@@ -9,13 +9,13 @@ const CrowpadAirdropper = ethers.getContractFactory("CrowpadAirdropper");
 const CronosToken = ethers.getContractFactory("CronosToken");
 
 let owner;
-/*
+
 describe("CrowpadSimpleTokenFactory", function () {
   let crowpadSimpleTokenFactory;
   beforeEach(async function () {
     crowpadSimpleTokenFactory = await (
       await CrowpadSimpleTokenFactory
-    ).attach("0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0");
+    ).attach("0xbA21b2fc2B8CCeeF11bD2b911b259B645bB6E92f");
     [owner] = await ethers.getSigners();
   });
   it("should set its deploy fee on cronos", async () => {
@@ -48,7 +48,7 @@ describe("CrowpadTokenFactory", function () {
   beforeEach(async function () {
     crowpadTokenFactory = await (
       await CrowpadTokenFactory
-    ).attach("0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82");
+    ).attach("0x1b864D11b202aB063aA325c7756098A314755aDE");
     [owner] = await ethers.getSigners();
   });
   it("should set its deploy fee on cronos", async () => {
@@ -77,7 +77,7 @@ describe("CrowpadTokenFactory", function () {
     );
   });
 });
-*/
+
 describe("CrowpadAirdropper", function () {
   let crowpadAirdropper, cronosToken;
   beforeEach(async function () {
