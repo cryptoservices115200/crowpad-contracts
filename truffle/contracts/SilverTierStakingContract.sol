@@ -17,20 +17,18 @@ contract SilverTierStakingContract is BaseTierStakingContract {
         address _tokenAddress,
         address _feeAddress,
         address _stakingHelper
-    )
-        BaseTierStakingContract(
-            tierId,
-            multiplier,
-            emergencyWithdrawlFee,
-            enableEmergencyWithdrawl,
-            unlockDuration,
-            enableRewards,
-            _depositor,
-            _tokenAddress,
-            _feeAddress,
-            _stakingHelper
-        )
-    {
+    ) BaseTierStakingContract(
+        tierId,
+        multiplier,
+        emergencyWithdrawlFee,
+        enableEmergencyWithdrawl,
+        unlockDuration,
+        enableRewards,
+        _depositor,
+        _tokenAddress,
+        _feeAddress,
+        _stakingHelper
+    ) {
         //
     }  
 }

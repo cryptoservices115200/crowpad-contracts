@@ -15,8 +15,8 @@ interface IStakingTierContract {
 }
 
 interface ITokenLocker {
-    function convertSharesToTokens (address _token, uint256 _shares) external view returns (uint256);
-    function LOCKS(uint256 lockId) external view returns(address, uint256, uint256, uint256, uint256, uint256, address, string memory);
+    function convertSharesToTokens(address _token, uint256 _shares) external view returns (uint256);
+    function LOCKS(uint256 lockId) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, string memory);
 }
 
 contract StakingHelper is Ownable, ReentrancyGuard, Pausable {
