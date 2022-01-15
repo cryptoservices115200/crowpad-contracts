@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './CrowpadStakingHelper.sol';
+import './CrowpadLockingHelper.sol';
 
 interface IMigrator {
     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
 }
 
-contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
+contract CrowpadLockingContract is CrowpadLockingHelper {
 
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
@@ -18,14 +18,12 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
         uint256 lockId;
         address owner;
         uint256 amount;
-        uint256 iPP; // individual pool percentage
         uint256 unlockTime;
         uint256 lockTime;
     }
 
     struct Config {
         uint8 tierId; // 0 based index
-        uint8 multiplier; // in 10 to support single decimal such as 0.1 and 1.2
         uint8 emergencyWithdrawlFee; // in 1000 so for 2% fee it will be 20
         uint8 enableEarlyWithdrawal;
         uint8 enableRewards;
@@ -52,7 +50,7 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
     
     IMigrator public migrator;
 
-    event OnLock(uint256 lockId, address owner, uint256 amountInTokens, uint256 iPP);
+    event OnLock(uint256 lockId, address owner, uint256 amountInTokens);
     event OnLockUpdated(uint256 lockId, address owner, uint256 amountInTokens, uint256 tierId);
     event OnWithdraw(uint256 lockId, address owner, uint256 amountInTokens);
     event OnFeeCharged(uint256 lockId, address owner, uint256 amountInTokens);
@@ -60,7 +58,6 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
   
     constructor(
         uint8 _tierId,
-        uint8 _multiplier,
         uint8 _emergencyWithdrawlFee,
         uint8 _enableEarlyWithdrawal,
         uint256 _unlockDuration,
@@ -68,16 +65,13 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
         address _depositor,
         address _tokenAddress,
         address _feeAddress
-    ) CrowpadStakingHelper(
-        0,
-        0,
+    ) CrowpadLockingHelper(
         0,
         0,
         0x0f2257997A3aF27C027377e4bdeed583F804cc83
     ) {
         token = IERC20(_tokenAddress);
         config.tierId = _tierId;
-        config.multiplier = _multiplier;
         config.emergencyWithdrawlFee = _emergencyWithdrawlFee;
         config.unlockDuration = _unlockDuration;
         config.enableEarlyWithdrawal = _enableEarlyWithdrawal;
@@ -133,13 +127,11 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
             tokenLock.amount = lockParam.amount;
             tokenLock.lockTime = block.timestamp;
             tokenLock.unlockTime = block.timestamp + config.unlockDuration;
-            tokenLock.iPP = lockParam.amount * config.multiplier;
             // record the lock globally
             locks[nonce] = tokenLock;
-            tierTotalParticipationPoints += tokenLock.iPP;
             userLocks[tokenLock.owner].push(tokenLock.lockId);
             nonce++;
-            emit OnLock(tokenLock.lockId, tokenLock.owner, tokenLock.amount, tokenLock.iPP);
+            emit OnLock(tokenLock.lockId, tokenLock.owner, tokenLock.amount);
         }
     }
 
@@ -189,9 +181,6 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
         require(_amount <= balance, 'NOT ENOUGH TOKENS');
 
         locks[_lockId].amount = withdrawableAmount - _amount;
-        uint256 decreaseIPP = _amount * config.multiplier;
-        tierTotalParticipationPoints -= decreaseIPP;
-        locks[_lockId].iPP -= decreaseIPP;
 
         if (userLock.unlockTime > block.timestamp && config.emergencyWithdrawlFee > 0) {
             uint256 fee = FullMath.mulDiv(_amount, config.emergencyWithdrawlFee, 1000);
@@ -203,9 +192,8 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
         emit OnWithdraw(_lockId, msg.sender, _amount);
     }
 
-    function changeConfig(uint8 tierId, uint8 multiplier, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address depositor, address feeAddress) external onlyOwner returns (bool) {
+    function changeConfig(uint8 tierId, uint8 emergencyWithdrawlFee, uint8 enableEarlyWithdrawal, uint256 unlockDuration, uint8 enableRewards, address depositor, address feeAddress) external onlyOwner returns (bool) {
         config.tierId = tierId;
-        config.multiplier = multiplier;
         config.emergencyWithdrawlFee = emergencyWithdrawlFee;
         config.enableEarlyWithdrawal = enableEarlyWithdrawal;
         config.unlockDuration = unlockDuration;
@@ -217,19 +205,6 @@ contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
   
     function setDepositor(address _depositor) external onlyOwner {
         config.depositor = _depositor;
-    }
-
-    function getPoolPercentagesWithUser(address _user) external view returns(uint256, uint256) {
-        return _getPoolPercentagesWithUser(_user);
-    }
-
-    function _getPoolPercentagesWithUser(address _user) internal view returns(uint256, uint256) {
-        uint256 userLockIPP = 0;
-        for (uint256 i = 0; i < userLocks[_user].length; i++) {
-            TokenLock storage userLock = locks[userLocks[_user][i]];
-            userLockIPP += userLock.iPP;
-        }
-        return (userLockIPP, tierTotalParticipationPoints);
     }
 
     // /**

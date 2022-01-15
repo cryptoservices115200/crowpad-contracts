@@ -14,16 +14,13 @@ import "./Pausable.sol";
 //     function LOCKS(uint256 lockId) external view returns (address, uint256, uint256, uint256, uint256, uint256, address, string memory);
 // }
 
-contract CrowpadStakingHelper is Ownable, ReentrancyGuard, Pausable {
+contract CrowpadLockingHelper is Ownable, ReentrancyGuard, Pausable {
 
     using SafeERC20 for IERC20;
     
     struct Settings {
         uint256 startTimeForDeposit;
         uint256 endTimeForDeposit;
-        uint256 ppMultiplier;
-        uint256 privateSaleMultiplier;
-        uint256 privateSaleTotalPP;
         uint256 withdrawalSuspensionStartTime;
         uint256 withdrawalSuspensionEndTime;
     }
@@ -37,14 +34,10 @@ contract CrowpadStakingHelper is Ownable, ReentrancyGuard, Pausable {
     constructor(
         uint256 _startTimeForDeposit,
         uint256 _endTimeForDeposit,
-        uint256 _ppMultiplier,
-        uint256 _privateSaleMultiplier,
         address _privateSaleLockerAddress
     ) {
         SETTINGS.startTimeForDeposit = _startTimeForDeposit;
         SETTINGS.endTimeForDeposit = _endTimeForDeposit;
-        SETTINGS.ppMultiplier = _ppMultiplier;
-        SETTINGS.privateSaleMultiplier = _privateSaleMultiplier;
         SETTINGS.withdrawalSuspensionEndTime = 0;
         SETTINGS.withdrawalSuspensionStartTime = 0;
         privateSaleLockerAddress = _privateSaleLockerAddress;
@@ -107,9 +100,6 @@ contract CrowpadStakingHelper is Ownable, ReentrancyGuard, Pausable {
     //     privateSaleLockerIds = _privateSaleLockerIds;
     // }
 
-    function updatePrivateSaleTotalPP(uint256 _privateSaleTotalPP) external onlyOwner {
-        SETTINGS.privateSaleTotalPP = _privateSaleTotalPP;
-    }
 
     // function getLockedPrivateSaleTokens(uint256 lockerId) external view returns (uint256) {
     //     return _getLockedPrivateSaleTokens(lockerId);
