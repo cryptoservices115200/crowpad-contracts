@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import './CrowpadLockingHelper.sol';
 
-interface IMigrator {
-    function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
-}
+// interface IMigrator {
+//     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
+// }
 
 contract CrowpadLockingContract is CrowpadLockingHelper {
 
@@ -48,7 +48,7 @@ contract CrowpadLockingContract is CrowpadLockingHelper {
     mapping(uint256 => TokenLock) public locks; // map lockId nonce to the lock
     mapping(address => uint256[]) public userLocks; // UserAddress => LockId
     
-    IMigrator public migrator;
+    // IMigrator public migrator;
 
     event OnLock(uint256 lockId, address owner, uint256 amountInTokens);
     event OnLockUpdated(uint256 lockId, address owner, uint256 amountInTokens, uint256 tierId);
