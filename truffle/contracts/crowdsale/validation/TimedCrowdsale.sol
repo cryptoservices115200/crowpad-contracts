@@ -1,6 +1,7 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
-import "../../math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Crowdsale.sol";
 
 /**
@@ -33,7 +34,7 @@ contract TimedCrowdsale is Crowdsale {
      * @param openingTime Crowdsale opening time
      * @param closingTime Crowdsale closing time
      */
-    constructor (uint256 openingTime, uint256 closingTime) public {
+    constructor (uint256 openingTime, uint256 closingTime) {
         // solhint-disable-next-line not-rely-on-time
         require(openingTime >= block.timestamp, "TimedCrowdsale: opening time is before current time");
         // solhint-disable-next-line max-line-length

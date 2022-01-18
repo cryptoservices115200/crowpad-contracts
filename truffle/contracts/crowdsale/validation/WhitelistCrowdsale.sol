@@ -1,7 +1,8 @@
-pragma solidity ^0.5.0;
-import "../Crowdsale.sol";
-import "../../access/roles/WhitelistedRole.sol";
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
+import "../roles/WhitelistedRole.sol";
+import "../Crowdsale.sol";
 
 /**
  * @title WhitelistCrowdsale

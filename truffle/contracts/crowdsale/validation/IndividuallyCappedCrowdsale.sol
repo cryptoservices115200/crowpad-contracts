@@ -1,8 +1,9 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
-import "../../math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Crowdsale.sol";
-import "../../access/roles/CapperRole.sol";
+import "../roles/CapperRole.sol";
 
 /**
  * @title IndividuallyCappedCrowdsale
