@@ -10,7 +10,7 @@ import "../validation/TimedCrowdsale.sol";
  * Note that what should be provided to the constructor is the initial and final _rates_, that is,
  * the amount of tokens per wei contributed. Thus, the initial rate must be greater than the final rate.
  */
-contract IncreasingPriceCrowdsale is TimedCrowdsale {
+abstract contract IncreasingPriceCrowdsale is TimedCrowdsale {
     using SafeMath for uint256;
 
     uint256 private _initialRate;
@@ -18,22 +18,22 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
 
     /**
      * @dev Constructor, takes initial and final rates of tokens received per wei contributed.
-     * @param initialRate Number of tokens a buyer gets per wei at the start of the crowdsale
-     * @param finalRate Number of tokens a buyer gets per wei at the end of the crowdsale
+     * @param initialRate_ Number of tokens a buyer gets per wei at the start of the crowdsale
+     * @param finalRate_ Number of tokens a buyer gets per wei at the end of the crowdsale
      */
-    constructor (uint256 initialRate, uint256 finalRate) public {
-        require(finalRate > 0, "IncreasingPriceCrowdsale: final rate is 0");
+    constructor (uint256 initialRate_, uint256 finalRate_) {
+        require(finalRate_ > 0, "IncreasingPriceCrowdsale: final rate is 0");
         // solhint-disable-next-line max-line-length
-        require(initialRate > finalRate, "IncreasingPriceCrowdsale: initial rate is not greater than final rate");
-        _initialRate = initialRate;
-        _finalRate = finalRate;
+        require(initialRate_ > finalRate_, "IncreasingPriceCrowdsale: initial rate is not greater than final rate");
+        _initialRate = initialRate_;
+        _finalRate = finalRate_;
     }
 
     /**
      * The base rate function is overridden to revert, since this crowdsale doesn't use it, and
      * all calls to it are a mistake.
      */
-    function rate() public view returns (uint256) {
+    function rate() override public view returns (uint256) {
         revert("IncreasingPriceCrowdsale: rate() called");
     }
 
@@ -73,7 +73,7 @@ contract IncreasingPriceCrowdsale is TimedCrowdsale {
      * @param weiAmount The value in wei to be converted into tokens
      * @return The number of tokens _weiAmount wei will buy at present time
      */
-    function _getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
+    function _getTokenAmount(uint256 weiAmount) override internal view returns (uint256) {
         uint256 currentRate = getCurrentRate();
         return currentRate.mul(weiAmount);
     }

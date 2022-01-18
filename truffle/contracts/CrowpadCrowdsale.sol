@@ -11,7 +11,7 @@ import "./crowdsale/validation/TimedCrowdsale.sol";
 import "./crowdsale/validation/WhitelistCrowdsale.sol";
 import "./crowdsale/distribution/RefundableCrowdsale.sol";
 
-contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistedCrowdsale, RefundableCrowdsale {
+contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundableCrowdsale {
 
     // Track investor contributions
     uint256 public investorMinCap = 2000000000000000; // 0.002 ether

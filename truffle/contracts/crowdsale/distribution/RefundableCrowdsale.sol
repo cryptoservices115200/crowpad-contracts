@@ -16,7 +16,7 @@ import "./FinalizableCrowdsale.sol";
  * the goal is unlikely to be met, they sell their tokens (possibly at a discount). The attacker will be refunded when
  * the crowdsale is finalized, and the users that purchased from them will be left with worthless tokens.
  */
-contract RefundableCrowdsale is Context, FinalizableCrowdsale {
+abstract contract RefundableCrowdsale is Context, FinalizableCrowdsale {
     using SafeMath for uint256;
 
     // minimum amount of funds to be raised in weis
@@ -27,12 +27,12 @@ contract RefundableCrowdsale is Context, FinalizableCrowdsale {
 
     /**
      * @dev Constructor, creates RefundEscrow.
-     * @param goal Funding goal
+     * @param goal_ Funding goal
      */
-    constructor (uint256 goal) public {
-        require(goal > 0, "RefundableCrowdsale: goal is 0");
+    constructor (uint256 goal_) {
+        require(goal_ > 0, "RefundableCrowdsale: goal is 0");
         _escrow = new RefundEscrow(wallet());
-        _goal = goal;
+        _goal = goal_;
     }
 
     /**
@@ -64,7 +64,7 @@ contract RefundableCrowdsale is Context, FinalizableCrowdsale {
     /**
      * @dev Escrow finalization task, called when finalize() is called.
      */
-    function _finalization() internal {
+    function _finalization() override internal {
         if (goalReached()) {
             _escrow.close();
             _escrow.beneficiaryWithdraw();
@@ -78,7 +78,7 @@ contract RefundableCrowdsale is Context, FinalizableCrowdsale {
     /**
      * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
      */
-    function _forwardFunds() internal {
+    function _forwardFunds() override internal {
         _escrow.deposit.value(msg.value)(_msgSender());
     }
 }
