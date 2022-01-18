@@ -1,10 +1,11 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
 import "../Crowdsale.sol";
-import "../../token/ERC20/IERC20.sol";
-import "../../token/ERC20/SafeERC20.sol";
-import "../../math/SafeMath.sol";
-import "../../math/Math.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
  * @title AllowanceCrowdsale

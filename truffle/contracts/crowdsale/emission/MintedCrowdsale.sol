@@ -1,7 +1,8 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
 import "../Crowdsale.sol";
-import "../../token/ERC20/ERC20Mintable.sol";
+import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
 /**
  * @title MintedCrowdsale
@@ -17,7 +18,7 @@ contract MintedCrowdsale is Crowdsale {
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal {
         // Potentially dangerous assumption about the type of the token.
         require(
-            ERC20Mintable(address(token())).mint(beneficiary, tokenAmount),
+            ERC20PresetMinterPauser(address(token())).mint(beneficiary, tokenAmount),
                 "MintedCrowdsale: minting failed"
         );
     }
