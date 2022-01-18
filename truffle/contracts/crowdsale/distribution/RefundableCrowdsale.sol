@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.0;
 
-import "../../GSN/Context.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/escrow/RefundEscrow.sol";
 import "./FinalizableCrowdsale.sol";
-import "../../payment/escrow/RefundEscrow.sol";
 
 /**
  * @title RefundableCrowdsale
