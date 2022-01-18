@@ -1,7 +1,8 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../validation/TimedCrowdsale.sol";
-import "../../math/SafeMath.sol";
 
 /**
  * @title IncreasingPriceCrowdsale
