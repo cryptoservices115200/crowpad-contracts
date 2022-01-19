@@ -59,7 +59,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         TimedCrowdsale(_openingTime, _closingTime)
         RefundablePostDeliveryCrowdsale(_goal)
     {
-        require(_goal <= _cap);
+        require(_goal <= _cap, "Goal can not be greater than Cap.");
         foundersFund   = _foundersFund;
         foundationFund = _foundationFund;
         partnersFund   = _partnersFund;
@@ -118,7 +118,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         super._preValidatePurchase(_beneficiary, _weiAmount);
         uint256 _existingContribution = contributions[_beneficiary];
         uint256 _newContribution = _existingContribution.add(_weiAmount);
-        require(_newContribution >= investorMinCap && _newContribution <= investorHardCap);
+        require(_newContribution >= investorMinCap && _newContribution <= investorHardCap, "investorMinCap < contribution < investorHardCap");
         contributions[_beneficiary] = _newContribution;
     }
 
