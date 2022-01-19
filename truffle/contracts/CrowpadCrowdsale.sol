@@ -64,9 +64,6 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         foundationFund = _foundationFund;
         partnersFund   = _partnersFund;
         releaseTime    = _releaseTime;
-
-        // can not transfer token during presale
-        ERC20PresetMinterPauser(address(token())).pause();
     }
 
     /**
