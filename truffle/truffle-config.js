@@ -36,8 +36,7 @@ module.exports = {
     development: {
       host: "127.0.0.1",
       port: 7545,
-      network_id: "*",
-      from: process.env.PUBLIC_KEY
+      network_id: "*"
     },
     cronos: {
       provider: new HDWalletProvider(getHDWallet(), "https://cronos-testnet-3.crypto.org:8545"),
