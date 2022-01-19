@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./crowdsale/Crowdsale.sol";
 import "./crowdsale/emission/MintedCrowdsale.sol";
 import "./crowdsale/validation/CappedCrowdsale.sol";
@@ -11,7 +12,7 @@ import "./crowdsale/validation/TimedCrowdsale.sol";
 import "./crowdsale/validation/WhitelistCrowdsale.sol";
 import "./crowdsale/distribution/RefundableCrowdsale.sol";
 
-contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundableCrowdsale {
+contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundableCrowdsale, Ownable {
 
     // Track investor contributions
     uint256 public investorMinCap = 2000000000000000; // 0.002 ether
@@ -97,7 +98,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
     /**
     * @dev forwards funds to the wallet during the PreICO stage, then the refund vault during ICO stage
     */
-    function _forwardFunds() internal {
+    function _forwardFunds() internal override {
         if (stage == CrowdsaleStage.PreICO) {
             wallet.transfer(msg.value);
         } else if (stage == CrowdsaleStage.ICO) {
@@ -110,7 +111,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
     * @param _beneficiary Token purchaser
     * @param _weiAmount Amount of wei contributed
     */
-    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    function preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
         super._preValidatePurchase(_beneficiary, _weiAmount);
         uint256 _existingContribution = contributions[_beneficiary];
         uint256 _newContribution = _existingContribution.add(_weiAmount);

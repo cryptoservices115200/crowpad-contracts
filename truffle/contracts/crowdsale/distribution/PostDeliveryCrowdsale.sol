@@ -10,13 +10,13 @@ import "../ownership/Secondary.sol";
  * @title PostDeliveryCrowdsale
  * @dev Crowdsale that locks tokens from withdrawal until it ends.
  */
-contract PostDeliveryCrowdsale is TimedCrowdsale {
+abstract contract PostDeliveryCrowdsale is TimedCrowdsale {
     using SafeMath for uint256;
 
     mapping(address => uint256) private _balances;
     __unstable__TokenVault private _vault;
 
-    constructor() public {
+    constructor() {
         _vault = new __unstable__TokenVault();
     }
 
@@ -47,7 +47,7 @@ contract PostDeliveryCrowdsale is TimedCrowdsale {
      * @param beneficiary Token purchaser
      * @param tokenAmount Amount of tokens purchased
      */
-    function _processPurchase(address beneficiary, uint256 tokenAmount) internal {
+    function _processPurchase(address beneficiary, uint256 tokenAmount) internal override {
         _balances[beneficiary] = _balances[beneficiary].add(tokenAmount);
         _deliverTokens(address(_vault), tokenAmount);
     }
