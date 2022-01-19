@@ -22,4 +22,12 @@ abstract contract RefundablePostDeliveryCrowdsale is RefundableCrowdsale, PostDe
 
         super.withdrawTokens(beneficiary);
     }
+
+    function _forwardFunds() internal virtual override(Crowdsale, RefundableCrowdsale) {
+        RefundableCrowdsale._forwardFunds();
+    }
+
+    function _processPurchase(address beneficiary, uint256 tokenAmount) internal virtual override(Crowdsale, PostDeliveryCrowdsale) {
+        PostDeliveryCrowdsale._processPurchase(beneficiary, tokenAmount);
+    }
 }

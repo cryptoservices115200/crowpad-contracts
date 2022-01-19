@@ -64,7 +64,7 @@ abstract contract RefundableCrowdsale is Context, FinalizableCrowdsale {
     /**
      * @dev Escrow finalization task, called when finalize() is called.
      */
-    function _finalization() override internal {
+    function _finalization() internal virtual override {
         if (goalReached()) {
             _escrow.close();
             _escrow.beneficiaryWithdraw();
@@ -78,7 +78,7 @@ abstract contract RefundableCrowdsale is Context, FinalizableCrowdsale {
     /**
      * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
      */
-    function _forwardFunds() internal override {
-        _escrow.deposit.value(msg.value)(_msgSender());
+    function _forwardFunds() internal virtual override {
+        _escrow.deposit{value: msg.value}(_msgSender());
     }
 }

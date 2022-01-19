@@ -8,10 +8,10 @@ import "./crowdsale/Crowdsale.sol";
 import "./crowdsale/emission/MintedCrowdsale.sol";
 import "./crowdsale/validation/CappedCrowdsale.sol";
 import "./crowdsale/validation/TimedCrowdsale.sol";
-import "./crowdsale/validation/WhitelistCrowdsale.sol";
 import "./crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
 
-contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
+contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
+    using SafeMath for uint256;
 
     // Track investor contributions
     uint256 public investorMinCap = 2000000000000000; // 0.002 ether
@@ -97,9 +97,9 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
     /**
     * @dev forwards funds to the wallet during the PreICO stage, then the refund vault during ICO stage
     */
-    function _forwardFunds() internal override {
+    function _forwardFunds() internal override(Crowdsale, RefundablePostDeliveryCrowdsale) {
         if (stage == CrowdsaleStage.PreICO) {
-            wallet.transfer(msg.value);
+            wallet().transfer(msg.value);
         } else if (stage == CrowdsaleStage.ICO) {
             super._forwardFunds();
         }
@@ -118,6 +118,22 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         contributions[_beneficiary] = _newContribution;
     }
 
+    /**
+     * @dev Overrides delivery by minting tokens upon purchase.
+     * @param beneficiary Token purchaser
+     * @param tokenAmount Number of tokens to be minted
+     */
+    function _deliverTokens(address beneficiary, uint256 tokenAmount) internal override(MintedCrowdsale, Crowdsale) {
+        MintedCrowdsale._deliverTokens(beneficiary, tokenAmount);
+    }
+
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view override(CappedCrowdsale, Crowdsale, TimedCrowdsale) {
+        super._preValidatePurchase(beneficiary, weiAmount);
+    }
+
+    function _processPurchase(address beneficiary, uint256 tokenAmount) internal override(Crowdsale, RefundablePostDeliveryCrowdsale) {
+        RefundablePostDeliveryCrowdsale._processPurchase(beneficiary, tokenAmount);
+    }
 
     /**
     * @dev enables token transfers, called when owner calls finalize()

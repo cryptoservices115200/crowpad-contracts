@@ -12,7 +12,7 @@ contract CapperRole is Context {
 
     Roles.Role private _cappers;
 
-    constructor () internal {
+    constructor () {
         _addCapper(_msgSender());
     }
 
