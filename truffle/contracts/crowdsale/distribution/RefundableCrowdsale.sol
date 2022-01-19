@@ -78,7 +78,7 @@ abstract contract RefundableCrowdsale is Context, FinalizableCrowdsale {
     /**
      * @dev Overrides Crowdsale fund forwarding, sending funds to escrow.
      */
-    function _forwardFunds() override internal {
+    function _forwardFunds() internal override {
         _escrow.deposit.value(msg.value)(_msgSender());
     }
 }
