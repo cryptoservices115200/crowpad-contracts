@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./crowdsale/Crowdsale.sol";
@@ -10,9 +9,9 @@ import "./crowdsale/emission/MintedCrowdsale.sol";
 import "./crowdsale/validation/CappedCrowdsale.sol";
 import "./crowdsale/validation/TimedCrowdsale.sol";
 import "./crowdsale/validation/WhitelistCrowdsale.sol";
-import "./crowdsale/distribution/RefundableCrowdsale.sol";
+import "./crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
 
-contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundableCrowdsale, Ownable {
+contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, WhitelistCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
 
     // Track investor contributions
     uint256 public investorMinCap = 2000000000000000; // 0.002 ether
@@ -43,7 +42,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
 
     constructor(
         uint256 _rate,
-        address _wallet,
+        address payable _wallet,
         IERC20 _token,
         uint256 _cap,
         uint256 _openingTime,
@@ -57,7 +56,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
         TimedCrowdsale(_openingTime, _closingTime)
-        RefundableCrowdsale(_goal)
+        RefundablePostDeliveryCrowdsale(_goal)
     {
         require(_goal <= _cap);
         foundersFund   = _foundersFund;
@@ -87,10 +86,10 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         }
 
         if (stage == CrowdsaleStage.PreICO) {
-            rate = 500;
+            // rate = 500;
             // change crowsale's rate
         } else if (stage == CrowdsaleStage.ICO) {
-            rate = 250;
+            // rate = 250;
             // change crowsale's rate
         }
     }
