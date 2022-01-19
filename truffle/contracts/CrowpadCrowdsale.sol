@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 import "./crowdsale/Crowdsale.sol";
 import "./crowdsale/emission/MintedCrowdsale.sol";
 import "./crowdsale/validation/CappedCrowdsale.sol";
@@ -138,29 +139,23 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
     /**
     * @dev enables token transfers, called when owner calls finalize()
     */
-    function finalization() internal {
-        // if (goalReached()) {
-        //     MintableToken _mintableToken = MintableToken(token);
-        //     uint256 _alreadyMinted = _mintableToken.totalSupply();
+    function _finalization() internal override {
+        if (goalReached()) {
+            ERC20PresetMinterPauser _MPToken = ERC20PresetMinterPauser(address(token()));
 
-        //     uint256 _finalTotalSupply = _alreadyMinted.div(tokenSalePercentage).mul(100);
+            uint256 _alreadyMinted = _MPToken.totalSupply();
+            uint256 _finalTotalSupply = _alreadyMinted.div(tokenSalePercentage).mul(100);
 
-        //     foundersTimelock   = new TokenTimelock(token, foundersFund, releaseTime);
-        //     foundationTimelock = new TokenTimelock(token, foundationFund, releaseTime);
-        //     partnersTimelock   = new TokenTimelock(token, partnersFund, releaseTime);
+            foundersTimelock   = address(new TokenTimelock(token(), foundersFund, releaseTime));
+            foundationTimelock = address(new TokenTimelock(token(), foundationFund, releaseTime));
+            partnersTimelock   = address(new TokenTimelock(token(), partnersFund, releaseTime));
 
-        //     _mintableToken.mint(address(foundersTimelock),   _finalTotalSupply.mul(foundersPercentage).div(100));
-        //     _mintableToken.mint(address(foundationTimelock), _finalTotalSupply.mul(foundationPercentage).div(100));
-        //     _mintableToken.mint(address(partnersTimelock),   _finalTotalSupply.mul(partnersPercentage).div(100));
+            _MPToken.mint(foundersTimelock, _finalTotalSupply.mul(foundersPercentage).div(100));
+            _MPToken.mint(foundationTimelock, _finalTotalSupply.mul(foundationPercentage).div(100));
+            _MPToken.mint(partnersTimelock, _finalTotalSupply.mul(partnersPercentage).div(100));
+        }
 
-        //     _mintableToken.finishMinting();
-        //     // Unpause the token
-        //     PausableToken _pausableToken = PausableToken(token);
-        //     _pausableToken.unpause();
-        //     _pausableToken.transferOwnership(wallet);
-        // }
-
-        // super.finalization();
+        super._finalization();
     }
 
 }
