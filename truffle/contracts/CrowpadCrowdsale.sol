@@ -64,6 +64,9 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
         foundationFund = _foundationFund;
         partnersFund   = _partnersFund;
         releaseTime    = _releaseTime;
+
+        // can not transfer token during presale
+        ERC20PresetMinterPauser(address(token())).pause();
     }
 
     /**
@@ -111,7 +114,7 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
     * @param _beneficiary Token purchaser
     * @param _weiAmount Amount of wei contributed
     */
-    function preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal override(CappedCrowdsale, Crowdsale, TimedCrowdsale) {
         super._preValidatePurchase(_beneficiary, _weiAmount);
         uint256 _existingContribution = contributions[_beneficiary];
         uint256 _newContribution = _existingContribution.add(_weiAmount);
@@ -126,10 +129,6 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
      */
     function _deliverTokens(address beneficiary, uint256 tokenAmount) internal override(MintedCrowdsale, Crowdsale) {
         MintedCrowdsale._deliverTokens(beneficiary, tokenAmount);
-    }
-
-    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view override(CappedCrowdsale, Crowdsale, TimedCrowdsale) {
-        super._preValidatePurchase(beneficiary, weiAmount);
     }
 
     function _processPurchase(address beneficiary, uint256 tokenAmount) internal override(Crowdsale, RefundablePostDeliveryCrowdsale) {
@@ -153,6 +152,9 @@ contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedC
             _MPToken.mint(foundersTimelock, _finalTotalSupply.mul(foundersPercentage).div(100));
             _MPToken.mint(foundationTimelock, _finalTotalSupply.mul(foundationPercentage).div(100));
             _MPToken.mint(partnersTimelock, _finalTotalSupply.mul(partnersPercentage).div(100));
+
+            // allow token's transfer
+            _MPToken.unpause();
         }
 
         super._finalization();

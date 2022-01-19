@@ -47,7 +47,7 @@ abstract contract IndividuallyCappedCrowdsale is Crowdsale, CapperRole {
      * @param beneficiary Token purchaser
      * @param weiAmount Amount of wei contributed
      */
-    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view override {
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal override {
         super._preValidatePurchase(beneficiary, weiAmount);
         // solhint-disable-next-line max-line-length
         require(_contributions[beneficiary].add(weiAmount) <= _caps[beneficiary], "IndividuallyCappedCrowdsale: beneficiary's cap exceeded");
