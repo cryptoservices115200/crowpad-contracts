@@ -5,13 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
-import "./crowdsale/Crowdsale.sol";
-import "./crowdsale/emission/MintedCrowdsale.sol";
-import "./crowdsale/validation/CappedCrowdsale.sol";
-import "./crowdsale/validation/TimedCrowdsale.sol";
-import "./crowdsale/distribution/RefundablePostDeliveryCrowdsale.sol";
+import "./crowpadsale/Crowdsale.sol";
+import "./crowpadsale/emission/MintedCrowdsale.sol";
+import "./crowpadsale/validation/CappedCrowdsale.sol";
+import "./crowpadsale/validation/TimedCrowdsale.sol";
+import "./crowpadsale/distribution/RefundablePostDeliveryCrowdsale.sol";
 
-contract CrowpadCrowdsale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
+contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
     using SafeMath for uint256;
 
     // Track investor contributions

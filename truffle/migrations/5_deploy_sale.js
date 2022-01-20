@@ -1,4 +1,4 @@
-const CrowpadCrowdsale = artifacts.require("CrowpadCrowdsale")
+const CrowpadSale = artifacts.require("CrowpadSale")
 
 duration = {
   seconds: function (val) { return val; },
@@ -22,9 +22,9 @@ const partnersFund = "0x43ad0f0585659a68faA72FE276e48B9d2a23B117"
 const releaseTime = closingTime + duration.years(1)
 
 module.exports = async function (deployer, networks, accounts) {
-  // deploy CrowpadCrowdsale
+  // deploy CrowpadSale
   await deployer.deploy(
-          CrowpadCrowdsale,
+          CrowpadSale,
           rate,
           wallet,
           token,
