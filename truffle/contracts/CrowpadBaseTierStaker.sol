@@ -7,7 +7,7 @@ interface IMigrator {
     function migrate(uint256 lockId, address owner, uint256 amount, uint256 ipp, uint256 unlockTime, uint256 lockTime) external returns (bool);
 }
 
-contract CrowpadBaseTierStakingContract is CrowpadStakingHelper {
+contract CrowpadBaseTierStaker is CrowpadStakingHelper {
 
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./CrowpadBaseTierStakingContract.sol";
+import "./CrowpadBaseTierStaker.sol";
 
-contract CrowpadFlexTierStakingContract is CrowpadBaseTierStakingContract {
+contract CrowpadFlexTierStakingContract is CrowpadBaseTierStaker {
 
     uint8 public tierId = 0;
     uint8 public multiplier = 10; // in 1000
@@ -16,7 +16,7 @@ contract CrowpadFlexTierStakingContract is CrowpadBaseTierStakingContract {
         address _depositor,
         address _tokenAddress,
         address _feeAddress
-    ) CrowpadBaseTierStakingContract(
+    ) CrowpadBaseTierStaker(
         tierId,
         multiplier,
         emergencyWithdrawlFee,
