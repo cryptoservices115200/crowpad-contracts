@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./CrowpadBaseTierStaker.sol";
 
-contract CrowpadSilverTierStakingContract is CrowpadBaseTierStaker {
+contract CrowpadSilverTierStaker is CrowpadBaseTierStaker {
 
     uint8 public tierId = 2;
     uint8 public multiplier = 20; // in 1000
