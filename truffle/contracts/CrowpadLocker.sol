@@ -43,7 +43,7 @@ contract CrowpadLocker is Ownable {
         uint256 _unlockTime,
         uint256 _feePercentage
     ) public {
-        require(_feePercentage >= 0.35, "Minimal fee is 0.35%.");
+        require(_feePercentage >= 10, "Minimal fee is 10%.");
 
         Hodler storage hodler = hodlers[msg.sender];
         hodler.hodlerAddress = msg.sender;
@@ -102,34 +102,53 @@ contract CrowpadLocker is Ownable {
         Hodler storage hodler = hodlers[msg.sender];
         require(msg.sender == hodler.hodlerAddress, "Only available to the token owner.");
 
+        uint256 totalBalance = IERC20(_tokenAddress).balanceOf(address(this));
+        require(_amount <= totalBalance, "Amount to withdraw must be less than total supply.");
+
+        uint256 withdrawableAmount = hodler.tokens[_tokenAddress].balance;
+        require(withdrawableAmount > 0, "No balance");
+        require(_amount <= withdrawableAmount, "Amount to withdraw must be less than balance.");
+
         uint256 feeAmount = _amount / 100 * hodler.tokens[_tokenAddress].feePercentage;
-        uint256 withdrawalAmount = hodler.tokens[token].balance - feeAmount;
+        uint256 withdrawalAmount = _amount - feeAmount;
 
-        hodler.tokens[token].balance = 0;
-        //Transfers fees to the contract administrator/owner
-        hodlers[address(owner)].tokens[token].balance = feeAmount;
+        hodler.tokens[_tokenAddress].balance = withdrawableAmount - _amount;
 
-        ERC20(token).transfer(msg.sender, withdrawalAmount);
+        // Transfers fees to the contract administrator/owner
+        hodlers[owner()].tokens[_tokenAddress].balance += feeAmount;
 
-        emit PanicWithdraw(msg.sender, token, withdrawalAmount, hodler.tokens[token].unlockTime);
+        IERC20(_tokenAddress).safeTransfer(msg.sender, withdrawalAmount);
+
+        emit EmergencyWithdraw(msg.sender, _tokenAddress, withdrawalAmount, hodler.tokens[_tokenAddress].unlockTime, hodler.tokens[_tokenAddress].unlockTime, hodler.tokens[_tokenAddress].feePercentage);
     }
 
-    function claimTokenListFees(address[] memory tokenList) public onlyOwner {
-        for (uint256 i = 0; i < tokenList.length; i++) {
-            uint256 amount = hodlers[owner].tokens[tokenList[i]].balance;
+    /**
+    * @notice Claim fees
+    * @param _tokenAddressList array of token address to claim fee
+    * @dev
+    */
+    function claimTokenListFees(address[] memory _tokenAddressList) public onlyOwner {
+        for (uint256 i = 0; i < _tokenAddressList.length; i++) {
+            uint256 amount = hodlers[owner()].tokens[_tokenAddressList[i]].balance;
             if (amount > 0) {
-                hodlers[owner].tokens[tokenList[i]].balance = 0;
-                ERC20(tokenList[i]).transfer(owner, amount);
+                hodlers[owner()].tokens[_tokenAddressList[i]].balance = 0;
+                IERC20(_tokenAddressList[i]).safeTransfer(owner(), amount);
             }
         }
         emit FeesClaimed();
     }
 
-    function claimTokenFees(address token) public onlyOwner {
-        uint256 amount = hodlers[owner].tokens[token].balance;
+    /**
+    * @notice Claim fee
+    * @param _tokenAddress token address to claim fee
+    * @dev
+    */
+    function claimTokenFees(address _tokenAddress) public onlyOwner {
+        uint256 amount = hodlers[owner()].tokens[_tokenAddress].balance;
         require(amount > 0, "No fees available for claiming.");
-        hodlers[owner].tokens[token].balance = 0;
-        ERC20(token).transfer(owner, amount);
+
+        hodlers[owner()].tokens[_tokenAddress].balance = 0;
+        IERC20(_tokenAddress).safeTransfer(owner(), amount);
         emit FeesClaimed();
     }
 }
