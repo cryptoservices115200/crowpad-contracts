@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./CrowpadBaseTierStakingContract.sol";
+import "./CrowpadBaseTierStaker.sol";
 
-contract CrowpadSilverTierStakingContract is CrowpadBaseTierStakingContract {
+contract CrowpadFlexTierStaker is CrowpadBaseTierStaker {
 
-    uint8 public tierId = 2;
-    uint8 public multiplier = 20; // in 1000
-    uint8 public emergencyWithdrawlFee = 20;
+    uint8 public tierId = 0;
+    uint8 public multiplier = 10; // in 1000
+    uint8 public emergencyWithdrawlFee = 10;
     uint8 public enableEmergencyWithdrawl = 0;
-    uint8 public enableRewards = 1; // allow rewards of DexPad Fees
-    uint256 public unlockDuration = 6 * 30 * 24 * 60 * 60; // 6 months
+    uint8 public enableRewards = 0; //disable rewards
+    uint256 public unlockDuration = 7 * 24 * 60 * 60; // 7 days
 
     constructor(
         address _depositor,
         address _tokenAddress,
         address _feeAddress
-    ) CrowpadBaseTierStakingContract(
+    ) CrowpadBaseTierStaker(
         tierId,
         multiplier,
         emergencyWithdrawlFee,
@@ -28,5 +28,6 @@ contract CrowpadSilverTierStakingContract is CrowpadBaseTierStakingContract {
         _feeAddress
     ) {
         //
-    }  
+    }
+  
 }
