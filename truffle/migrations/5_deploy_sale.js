@@ -11,7 +11,7 @@ duration = {
 
 const rate = 500
 const wallet = "0x052f11157A23406F2A705fE78F2695009a6Ec022"
-const token = "0x119016470E88eC7228060B8b9F6049223c55D3eE"
+const token = "0x18b260e4D2048338241F103e6940a64C3d33A098"
 const cap = "200000000000000000000"
 const openingTime = 1642615732 + duration.weeks(1)
 const closingTime = openingTime + duration.weeks(1)

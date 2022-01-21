@@ -8,7 +8,7 @@ module.exports = async function (deployer, networks, accounts) {
   const crowpadAirdropper = await CrowpadAirdropper.deployed()
 
   // get cronosToken
-  const cronosToken = await CronosToken.at("0x119016470E88eC7228060B8b9F6049223c55D3eE")
+  const cronosToken = await CronosToken.at("0x18b260e4D2048338241F103e6940a64C3d33A098")
 
   // approve Airdropper as spender in token contract
   cronosToken.approve(crowpadAirdropper.address, totalAmount)
