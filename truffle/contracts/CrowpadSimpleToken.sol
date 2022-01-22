@@ -3,25 +3,27 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
-contract CrowpadSimpleToken is Ownable {
-    using Address for address;
-    mapping (address => uint256) private _balances;
-    mapping (address => mapping (address => uint256)) private _allowances;
-    address _owner;
-    string private _name;
-    string private _symbol;
-    uint256 private _decimals = 18;
-    uint256 private _totalSupply;
+contract CrowpadSimpleToken is ERC20PresetMinterPauser {
 
-    constructor (string memory _NAME, string memory _SYMBOL, uint256 _DECIMALS, uint256 _supply,address routerAddress,address tokenOwner) payable {
-        _name = _NAME;
-        _symbol = _SYMBOL;
-        _decimals = _DECIMALS;
-        _totalSupply = _supply * 10 ** _decimals;
-        //exclude owner and this contract from fee
-        _owner = tokenOwner;
-        _balances[_owner] = _totalSupply;
-        emit Transfer(address(0),_owner,_totalSupply);
+    uint8 private _decimals;
 
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_,
+        uint256 supply_,
+        address initialSuppliedAcount_
+    )
+        ERC20PresetMinterPauser(name_, symbol_) payable
+    {
+        _decimals = decimals_;
+        uint256 supply = supply_ * 10 ** _decimals;
+
+        _mint(initialSuppliedAcount_, supply);
+
+    }
+
+    function decimals() public view override returns (uint8) {
+        return _decimals;
     }
 }
