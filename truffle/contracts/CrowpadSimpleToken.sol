@@ -20,7 +20,6 @@ contract CrowpadSimpleToken is ERC20PresetMinterPauser {
         uint256 supply = supply_ * 10 ** _decimals;
 
         _mint(initialSuppliedAcount_, supply);
-
     }
 
     function decimals() public view override returns (uint8) {
