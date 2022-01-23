@@ -12,8 +12,8 @@ contract CrowpadTokenFactory is Ownable {
         address tokenAddress;
         address creatorAddress;
         address initialSuppliedAccount;
-        string name;
-        string symbol;
+        bytes32 name;
+        bytes32 symbol;
         uint8 decimals;
         uint256 supply;
         uint256 created;
@@ -66,7 +66,7 @@ contract CrowpadTokenFactory is Ownable {
 
         address tokenAddress = address(newToken);
 
-        tokens.push(Token(tokenAddress, msg.sender, _tokenOwner, _name, _symbol, _decimals, _supply, block.timestamp));
+        tokens.push(Token(tokenAddress, msg.sender, _tokenOwner, keccak256(abi.encode(_name)), keccak256(abi.encode(_symbol)), _decimals, _supply, block.timestamp));
         creatorTokenCount[msg.sender]++;
         tokenToCreator[tokenAddress] = msg.sender;
 
