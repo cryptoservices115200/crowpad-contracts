@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./CrowpadToken.sol";
+import "./crowpadtoken/CrowpadTokenProxy.sol";
 
 contract CrowpadTokenFactory is Ownable {    
 
@@ -61,7 +61,7 @@ contract CrowpadTokenFactory is Ownable {
         address _tokenOwner
     ) public payable {
         require(msg.value >= deployFee, 'Insufficient funds sent for deploy');
-        CrowpadToken newToken = new CrowpadToken(_name, _symbol, _decimals, _supply, _txFee, _lpFee, _DexFee, _routerAddress, _feeAddress, _tokenOwner);
+        CrowpadTokenProxy newToken = new CrowpadTokenProxy(_name, _symbol, _decimals, _supply, _txFee, _lpFee, _DexFee, _routerAddress, _feeAddress, _tokenOwner);
         newToken.transferOwnership(_tokenOwner);
 
         address tokenAddress = address(newToken);

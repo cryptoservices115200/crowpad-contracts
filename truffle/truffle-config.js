@@ -50,7 +50,7 @@ module.exports = {
     },
   },
 
-  plugins: ['truffle-plugin-verify'],
+  plugins: ['truffle-plugin-verify', 'truffle-contract-size'],
 
   api_keys: {
     etherscan: process.env.ETHERSCAN_API_KEY
@@ -59,6 +59,15 @@ module.exports = {
   // Set default mocha options here, use special reporters etc.
   mocha: {
     // timeout: 100000
+  },
+  solidity: {
+    version: "0.8.10",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1,
+      },
+    },
   },
   compilers: {
     solc: {

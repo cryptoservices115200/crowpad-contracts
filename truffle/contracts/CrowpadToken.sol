@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./CrowpadTokenLibrary.sol";
 
 interface IUniswapV2Factory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
@@ -202,7 +203,6 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
 
     mapping (address => uint256) private _rOwned;
     mapping (address => uint256) private _tOwned;
-    mapping (address => mapping (address => uint256)) private _allowances;
     mapping (address => bool) private _isExcludedFromFee;
     mapping (address => bool) private _isExcluded;
 
@@ -299,26 +299,6 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         return tokenFromReflection(_rOwned[account]);
     }
 
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
-        _transfer(_msgSender(), recipient, amount);
-        return true;
-    }
-
-    function allowance(address owner, address spender) public view override returns (uint256) {
-        return _allowances[owner][spender];
-    }
-
-    function approve(address spender, uint256 amount) public override returns (bool) {
-        _approve(_msgSender(), spender, amount);
-        return true;
-    }
-
-    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
-        _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
-        return true;
-    }
-
     function isExcludedFromReward(address account) public view returns (bool) {
         return _isExcluded[account];
     }
@@ -353,7 +333,7 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         return rAmount.div(currentRate);
     }
 
-    function excludeFromReward(address account) public onlyOwner() {
+    function excludeFromReward(address account) public onlyOwner {
         require(!_isExcluded[account], "Account is already excluded");
         if(_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
@@ -362,7 +342,7 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         _excluded.push(account);
     }
 
-    function includeInReward(address account) external onlyOwner() {
+    function includeInReward(address account) external onlyOwner {
         require(_isExcluded[account], "Account is already included");
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_excluded[i] == account) {
@@ -374,7 +354,8 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
             }
         }
     }
-        function _transferBothExcluded(address sender, address recipient, uint256 tAmount) private {
+
+    function _transferBothExcluded(address sender, address recipient, uint256 tAmount) private {
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity, uint256 tDev) = _getValues(tAmount);
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
@@ -394,15 +375,15 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         _isExcludedFromFee[account] = false;
     }
     
-    function setTaxFeePercent(uint256 taxFee) external onlyOwner() {
+    function setTaxFeePercent(uint256 taxFee) external onlyOwner {
         _taxFee = taxFee;
     }
 
-    function setDevFeePercent(uint256 devFee) external onlyOwner() {
+    function setDevFeePercent(uint256 devFee) external onlyOwner {
         _devFee = devFee;
     }
     
-    function setLiquidityFeePercent(uint256 liquidityFee) external onlyOwner() {
+    function setLiquidityFeePercent(uint256 liquidityFee) external onlyOwner {
         _liquidityFee = liquidityFee;
     }
    
@@ -423,32 +404,16 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
      //to recieve ETH from uniswapV2Router when swaping
     receive() external payable {}
 
-    function _reflectFee(uint256 rFee, uint256 tFee) private {
-        _rTotal = _rTotal.sub(rFee);
-        _tFeeTotal = _tFeeTotal.add(tFee);
+    function _reflectFee(uint256 _rFee, uint256 _tFee) private {
+        _rTotal = _rTotal.sub(_rFee);
+        _tFeeTotal = _tFeeTotal.add(_tFee);
     }
 
     function _getValues(uint256 tAmount) private view returns (uint256, uint256, uint256, uint256, uint256, uint256, uint256) {
-        (uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity, uint256 tDev) = _getTValues(tAmount);
-        (uint256 rAmount, uint256 rTransferAmount, uint256 rFee) = _getRValues(tAmount, tFee, tLiquidity, tDev, _getRate());
+        (uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity, uint256 tDev) = CrowpadTokenLibrary.getTValues(tAmount, _taxFee, _liquidityFee, _devFee);
+        uint256 tmp = tAmount;
+        (uint256 rAmount, uint256 rTransferAmount, uint256 rFee) = CrowpadTokenLibrary.getRValues(tmp, tFee, tLiquidity, tDev, _getRate());
         return (rAmount, rTransferAmount, rFee, tTransferAmount, tFee, tLiquidity, tDev);
-    }
-
-    function _getTValues(uint256 tAmount) private view returns (uint256, uint256, uint256, uint256) {
-        uint256 tFee = calculateTaxFee(tAmount);
-        uint256 tLiquidity = calculateLiquidityFee(tAmount);
-        uint256 tDev = calculateDevFee(tAmount);
-        uint256 tTransferAmount = tAmount.sub(tFee).sub(tLiquidity).sub(tDev);
-        return (tTransferAmount, tFee, tLiquidity, tDev);
-    }
-
-    function _getRValues(uint256 tAmount, uint256 tFee, uint256 tLiquidity, uint256 tDev, uint256 currentRate) private pure returns (uint256, uint256, uint256) {
-        uint256 rAmount = tAmount.mul(currentRate);
-        uint256 rFee = tFee.mul(currentRate);
-        uint256 rLiquidity = tLiquidity.mul(currentRate);
-        uint256 rDev = tDev.mul(currentRate);
-        uint256 rTransferAmount = rAmount.sub(rFee).sub(rLiquidity).sub(rDev);
-        return (rAmount, rTransferAmount, rFee);
     }
 
     function _getRate() private view returns(uint256) {
@@ -458,7 +423,7 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
 
     function _getCurrentSupply() private view returns(uint256, uint256) {
         uint256 rSupply = _rTotal;
-        uint256 tSupply = _tTotal;      
+        uint256 tSupply = _tTotal;
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_rOwned[_excluded[i]] > rSupply || _tOwned[_excluded[i]] > tSupply) return (_rTotal, _tTotal);
             rSupply = rSupply.sub(_rOwned[_excluded[i]]);
@@ -472,7 +437,7 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         uint256 currentRate =  _getRate();
         uint256 rLiquidity = tLiquidity.mul(currentRate);
         _rOwned[address(this)] = _rOwned[address(this)].add(rLiquidity);
-        if(_isExcluded[address(this)])
+        if (_isExcluded[address(this)])
             _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
     }
     
@@ -480,26 +445,8 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         uint256 currentRate =  _getRate();
         uint256 rDev = tDev.mul(currentRate);
         _rOwned[_devWalletAddress] = _rOwned[_devWalletAddress].add(rDev);
-        if(_isExcluded[_devWalletAddress])
+        if (_isExcluded[_devWalletAddress])
             _tOwned[_devWalletAddress] = _tOwned[_devWalletAddress].add(tDev);
-    }
-    
-    function calculateTaxFee(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_taxFee).div(
-            10**2
-        );
-    }
-
-    function calculateDevFee(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_devFee).div(
-            10**2
-        );
-    }
-
-    function calculateLiquidityFee(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_liquidityFee).div(
-            10**2
-        );
     }
     
     function removeAllFee() private { 
@@ -520,14 +467,6 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
     
     function isExcludedFromFee(address account) public view returns(bool) {
         return _isExcludedFromFee[account];
-    }
-
-    function _approve(address owner, address spender, uint256 amount) internal override {
-        require(owner != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
-
-        _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
     }
 
     function _transfer(
