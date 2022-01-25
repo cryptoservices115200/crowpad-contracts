@@ -1,115 +1,122 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
 import "./CrowpadToken.sol";
 
-pragma solidity ^0.8.4;
-// SPDX-License-Identifier: Unlicensed
+contract CrowpadTokenFactory is Ownable {    
 
-
-abstract contract ReentrancyGuard {
-
-    uint256 private constant _NOT_ENTERED = 1;
-    uint256 private constant _ENTERED = 2;
-
-    uint256 private _status;
-
-    constructor() {
-        _status = _NOT_ENTERED;
-    }
-
-
-    modifier nonReentrant() {
-        // On the first call to nonReentrant, _notEntered will be true
-        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
-
-        // Any calls to nonReentrant after this point will fail
-        _status = _ENTERED;
-
-        _;
-
-        // By storing the original value once again, a refund is triggered (see
-        // https://eips.ethereum.org/EIPS/eip-2200)
-        _status = _NOT_ENTERED;
-    }
-}
-
-abstract contract Roles{
-    address public _owner;
-    address private _previousOwner;
-    uint256 public _lockTime;
-    constructor(){
-        _setOwner(msg.sender);
-    }
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    modifier onlyOwner() {
-        require(owner() == msg.sender, "Ownable: caller is not the owner");
-        _;
-    }
-
-    function renounceOwnership() public virtual onlyOwner {
-        emit OwnershipTransferred(_owner, address(0));
-        _owner = address(0);
-    }
-
-
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
-    }
-
-
-        //Locks the contract for owner for the amount of time provided
-    function lock(uint256 time) public virtual onlyOwner {
-        _previousOwner = _owner;
-        _owner = address(0);
-        _lockTime = time;
-        emit OwnershipTransferred(_owner, address(0));
-    }
-
-    //Unlocks the contract for owner when _lockTime is exceeds
-    function unlock() public virtual {
-        require(_previousOwner == msg.sender, "You don't have permission to unlock.");
-        require(block.timestamp > _lockTime , "Contract is locked.");
-        emit OwnershipTransferred(_owner, _previousOwner);
-        _owner = _previousOwner;
-    }
-     function _setOwner(address newOwner) private {
-        address oldOwner = _owner;
-        _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
-    }
-}
-
-
-contract CrowpadTokenFactory is Roles, ReentrancyGuard{
-    address payable feesAddress;
+    address payable feeAddress;
     uint256 public deployFee = 0.8 ether;
 
-    event ContractDeployed(address from, address owner, address deployed);
-
-    function setDeployFee(uint256 newDeployFee_) external onlyOwner{
-        deployFee = newDeployFee_;
+    struct Token {
+        address tokenAddress;
+        address creatorAddress;
+        address initialSuppliedAccount;
+        bytes32 name;
+        bytes32 symbol;
+        uint8 decimals;
+        uint256 supply;
+        uint256 created;
     }
 
-    function deployNewInstance(string memory _NAME, string memory _SYMBOL, uint256 _DECIMALS,
-     uint256 _supply, uint256 _txFee,uint256 _lpFee,uint256 _DexFee,
-     address routerAddress,address feeaddress,
-     address tokenOwner) public payable{
+    Token[] tokens;
+
+    mapping(address => uint256) creatorTokenCount;
+    mapping(address => address) tokenToCreator;
+
+    event NewTokenCreated(address from, address owner, address deployed);
+
+    constructor(address payable _feeAddress) {
+        feeAddress = _feeAddress;
+    }
+
+    function setDeployFee(uint256 _newDeployFee) external onlyOwner {
+        deployFee = _newDeployFee;
+    }
+
+    /**
+    * @notice Create new token
+    * @param _name token name
+    * @param _symbol token symbol
+    * @param _decimals The number of decimals used in token
+    * @param _supply Initial supply of token
+    * @param _txFee ...
+    * @param _lpFee ...
+    * @param _DexFee ...
+    * @param _routerAddress ...
+    * @param _feeAddress ...
+    * @param _tokenOwner ...
+    * @dev
+    */
+    function createNewToken(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _supply,
+        uint256 _txFee,
+        uint256 _lpFee,
+        uint256 _DexFee,
+        address _routerAddress,
+        address _feeAddress,
+        address _tokenOwner
+    ) public payable {
         require(msg.value >= deployFee, 'Insufficient funds sent for deploy');
-        CrowpadToken newInstance = new CrowpadToken(_NAME,_SYMBOL,_DECIMALS,_supply,_txFee,_lpFee,_DexFee,routerAddress,feeaddress,tokenOwner);
-        emit ContractDeployed(msg.sender, tokenOwner, address(newInstance));
+        CrowpadToken newToken = new CrowpadToken(_name, _symbol, _decimals, _supply, _txFee, _lpFee, _DexFee, _routerAddress, _feeAddress, _tokenOwner);
+
+        // Implement CrowpadTokenInit and Call initNewToken
+        // newToken.initNewToken(_name, _symbol, _decimals, _supply, _txFee, _lpFee, _DexFee, _routerAddress, _feeAddress, _tokenOwner);
+
+        newToken.transferOwnership(_tokenOwner);
+
+        address tokenAddress = address(newToken);
+
+        tokens.push(Token(tokenAddress, msg.sender, _tokenOwner, keccak256(abi.encode(_name)), keccak256(abi.encode(_symbol)), _decimals, _supply, block.timestamp));
+        creatorTokenCount[msg.sender]++;
+        tokenToCreator[tokenAddress] = msg.sender;
+
+        emit NewTokenCreated(msg.sender, _tokenOwner, tokenAddress);
     }
 
-    function withdrawFees() external onlyOwner{
-        uint256 currentContractBalance = address(this).balance;
-        feesAddress.transfer(currentContractBalance);
-
+    /**
+    * @notice Withdraw fee
+    * @dev
+    */
+    function withdrawFee() external onlyOwner {
+        feeAddress.transfer(address(this).balance);
     }
-    function updateFeeAddress(address payable newAddress) external onlyOwner{
-        feesAddress=newAddress;
+
+    /**
+    * @notice Set address in which fee is stored
+    * @param _newAddress new address
+    * @dev
+    */
+    function setFeeAddress(address payable _newAddress) external onlyOwner {
+        feeAddress = _newAddress;
+    }
+
+    /**
+    * @notice Get all tokens deployed on network
+    * @dev
+    */
+    function getAllTokens() external view returns (Token[] memory) {
+        return tokens;
+    }
+
+    /**
+    * @notice Get all tokens of given user
+    * @param _user user address
+    * @dev
+    */
+    function getUserTokens(address _user) external view returns (Token[] memory) {
+        Token[] memory result = new Token[](creatorTokenCount[_user]);
+        uint counter = 0;
+
+        for (uint i = 0; i < tokens.length; i++) {
+            if (tokenToCreator[tokens[i].tokenAddress] == _user) {
+                result[counter] = tokens[i];
+                counter++;
+            }
+        }
+        return result;
     }
 }
