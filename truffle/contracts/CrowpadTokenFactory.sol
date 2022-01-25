@@ -61,7 +61,11 @@ contract CrowpadTokenFactory is Ownable {
         address _tokenOwner
     ) public payable {
         require(msg.value >= deployFee, 'Insufficient funds sent for deploy');
-        CrowpadTokenProxy newToken = new CrowpadTokenProxy(_name, _symbol, _decimals, _supply, _txFee, _lpFee, _DexFee, _routerAddress, _feeAddress, _tokenOwner);
+        CrowpadTokenProxy newToken = new CrowpadTokenProxy();
+
+        // Implement CrowpadTokenInit and Call initNewToken
+        newToken.initNewToken(_name, _symbol, _decimals, _supply, _txFee, _lpFee, _DexFee, _routerAddress, _feeAddress, _tokenOwner);
+
         newToken.transferOwnership(_tokenOwner);
 
         address tokenAddress = address(newToken);

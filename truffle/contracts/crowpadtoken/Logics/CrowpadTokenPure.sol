@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./CrowpadTokenStorage.sol";
+import "./CrowpadTokenValues.sol";
 
-contract CrowpadTokenPure is CrowpadTokenStorage {
+contract CrowpadTokenPure is CrowpadTokenValues {
     using SafeMath for uint256;
     using Address for address;
 
-	constructor(string memory name, string memory symbol) CrowpadTokenStorage(name, symbol) {}
+	constructor(string memory name, string memory symbol) CrowpadTokenValues(name, symbol) {}
 
 	function decimals() public view override returns (uint8) {
 		return _decimals;

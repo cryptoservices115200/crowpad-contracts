@@ -1,48 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Storages/CrowpadTokenStorage.sol";
+import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
+import "../Interfaces/ICrowpadTokenUniswap.sol";
+import "../Storages/CrowpadTokenStorage.sol";
 
-contract CrowpadTokenProxy is CrowpadTokenStorage {
+contract CrowpadTokenInit is ERC20PresetMinterPauser, CrowpadTokenStorage {
 
-    event Upgraded(address indexed implementation);
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     
-    /**
-    * @dev Set new logic contract address.
-    */
-    function setImplementation(address _implementation) external onlyOwner {
-      require(_implementation != address(0), 'implementation must be valid');
-      require(_implementation != implementation, 'already this implementation');
-
-      implementation = _implementation;
-
-      emit Upgraded(_implementation);
-    }
-
-    /**
-      * @dev Fallback function allowing to perform a delegatecall 
-      * to the given implementation. This function will return 
-      * whatever the implementation call returns
-      */
-    fallback () external payable {
-        address impl = implementation;
-        require(impl != address(0), 'implementation not set');
-        assembly {
-            let ptr := mload(0x40)
-            calldatacopy(ptr, 0, calldatasize())
-            let result := delegatecall(gas(), impl, ptr, calldatasize(), 0, 0)
-            let size := returndatasize()
-            returndatacopy(ptr, 0, size)
-            
-            switch result
-            case 0 { revert(ptr, size) }
-            default { return(ptr, size) }
-        }
-    }
-
-    //to recieve ETH from uniswapV2Router when swaping
-    receive() external payable {}
+    constructor(string memory name, string memory symbol) ERC20PresetMinterPauser(name, symbol) {}
 
     function initNewToken(
         string memory name_,

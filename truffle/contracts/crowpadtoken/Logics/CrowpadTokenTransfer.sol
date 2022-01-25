@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./CrowpadTokenStorage.sol";
+import "./CrowpadTokenValues.sol";
 
-contract CrowpadTokenTransfer is CrowpadTokenStorage {
+contract CrowpadTokenTransfer is CrowpadTokenValues {
     using SafeMath for uint256;
     using Address for address;
 
@@ -19,7 +19,7 @@ contract CrowpadTokenTransfer is CrowpadTokenStorage {
 		inSwapAndLiquify = false;
 	}
 
-	constructor(string memory name, string memory symbol) CrowpadTokenStorage(name, symbol) {}
+	constructor(string memory name, string memory symbol) CrowpadTokenValues(name, symbol) {}
 
 	function removeAllFee() private { 
 		_previousTaxFee = _taxFee;

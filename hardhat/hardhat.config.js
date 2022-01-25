@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -40,12 +41,17 @@ module.exports = {
       accounts: getHDWallet(),
     },
   },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: "SM1GW4KEIH2XDBN1H1768SU95MR1YJ8DNS"
+  },  
   solidity: {
     version: "0.8.4",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1000,
+        runs: 1,
       },
     },
   },
