@@ -36,6 +36,15 @@ contract CrowpadSimpleTokenFactory is Ownable {
     }
 
     /**
+    * @notice Set address in which fee is stored
+    * @param _newAddress new address
+    * @dev
+    */
+    function setFeeAddress(address payable _newAddress) external onlyOwner {
+        feeAddress = _newAddress;
+    }
+    
+    /**
     * @notice Create new token
     * @param _name token name
     * @param _symbol token symbol
@@ -69,15 +78,6 @@ contract CrowpadSimpleTokenFactory is Ownable {
     */
     function withdrawFee() external onlyOwner {
         feeAddress.transfer(address(this).balance);
-    }
-
-    /**
-    * @notice Set address in which fee is stored
-    * @param _newAddress new address
-    * @dev
-    */
-    function setFeeAddress(address payable _newAddress) external onlyOwner {
-        feeAddress = _newAddress;
     }
 
     /**

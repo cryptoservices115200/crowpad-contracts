@@ -3,6 +3,7 @@ const { ethers } = require("hardhat");
 
 const CrowpadSimpleTokenFactory = ethers.getContractFactory("CrowpadSimpleTokenFactory");
 const CrowpadTokenFactory = ethers.getContractFactory("CrowpadTokenFactory");
+const CrowpadSaleFactory = ethers.getContractFactory("CrowpadSaleFactory");
 
 const CrowpadAirdropper = ethers.getContractFactory("CrowpadAirdropper");
 const CronosToken = ethers.getContractFactory("CronosToken");
@@ -13,6 +14,8 @@ const CrowpadGoldTierStaker = ethers.getContractFactory("CrowpadGoldTierStaker")
 
 const CrowpadSimpleTokenFactoryAddress = "0xA07672C04D5e6BDdfAD3Ea97bb4e3C53cB74EDfA";
 const CrowpadTokenFactoryAddress = "0x8a69D67361Afbc705FdCd8bbaB4ab46137707422";
+const CrowpadSaleFactoryAddress = "0x8a69D67361Afbc705FdCd8bbaB4ab46137707422";
+
 const CrowpadAirdropperAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
 const CrowpadFlexTierStakerAddress = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
 const CrowpadBronzeTierStakerAddress = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
@@ -155,6 +158,49 @@ describe("CrowpadSimpleTokenFactory", function () {
 
   it("should return all token for owner on cronos", async () => {
     expect(await crowpadSimpleTokenFactory.getUserTokens("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")).to.be.an('array');
+  });
+});
+
+describe("CrowpadSaleFactory", function () {
+  let crowpadSaleFactory;
+  beforeEach(async function () {
+    crowpadSaleFactory = await (
+      await CrowpadSaleFactory
+    ).attach(CrowpadSaleFactoryAddress);
+    [owner] = await ethers.getSigners();
+  });
+
+  it("should set its deploy fee on cronos", async () => {
+    await crowpadSaleFactory.setDeployFee(
+      ethers.utils.parseEther("0.02")
+    );
+    expect(await crowpadSaleFactory.deployFee()).equal(
+      ethers.utils.parseEther("0.02")
+    );
+  });
+
+  it("should deploy a new token on cronos", async () => {
+    await crowpadSaleFactory.createNewToken(
+      "10",
+      "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      9999,
+      12312312,
+      15555555,
+      3000,
+      100,
+      1000,
+      50,
+      12222222
+    );
+  });
+
+  it("should return all token on cronos", async () => {
+    expect(await crowpadSaleFactory.getAllTokens()).to.be.an('array');
+  });
+
+  it("should return all token for owner on cronos", async () => {
+    expect(await crowpadSaleFactory.getUserTokens("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")).to.be.an('array');
   });
 });
 
