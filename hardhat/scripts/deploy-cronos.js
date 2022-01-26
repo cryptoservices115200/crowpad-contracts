@@ -6,7 +6,14 @@
 const hre = require("hardhat");
 
 async function main() {
-  if (false) {
+  let deployCronosToken = false;
+  let deployCrowpadTokenFactory = false;
+  let deployCrowpadSaleFactory = true;
+  let deployCrowpadAirdropper = false;
+  let deployCrowpadLocker = false;
+
+  // CronosToken
+  if (deployCronosToken) {
     const CronosToken = await hre.ethers.getContractFactory("CronosToken");
     const cronosToken = await CronosToken.deploy(
       "Crowpad Token",
@@ -27,16 +34,28 @@ async function main() {
     );
   }
 
+  // CrowpadTokenFactory
+  if (deployCrowpadTokenFactory) {
+    const CrowpadTokenFactory = await hre.ethers.getContractFactory(
+      "CrowpadTokenFactory"
+    );
+    const crowpadTokenFactory = await CrowpadTokenFactory.deploy("0x43ad0f0585659a68faA72FE276e48B9d2a23B117");
+    await crowpadTokenFactory.deployed();
+    console.log("CrowpadTokenFactory deployed to:", crowpadTokenFactory.address);
+  }
 
-  const CrowpadTokenFactory = await hre.ethers.getContractFactory(
-    "CrowpadTokenFactory"
-  );
-  const crowpadTokenFactory = await CrowpadTokenFactory.deploy("0x43ad0f0585659a68faA72FE276e48B9d2a23B117");
-  await crowpadTokenFactory.deployed();
-  console.log("CrowpadTokenFactory deployed to:", crowpadTokenFactory.address);
+  // CrowpadSaleFactory
+  if (deployCrowpadSaleFactory) {
+    const CrowpadSaleFactory = await hre.ethers.getContractFactory(
+      "CrowpadSaleFactory"
+    );
+    const crowpadSaleFactory = await CrowpadSaleFactory.deploy("0x43ad0f0585659a68faA72FE276e48B9d2a23B117");
+    await crowpadSaleFactory.deployed();
+    console.log("CrowpadSaleFactory deployed to:", crowpadSaleFactory.address);
+  }
 
-
-  if (false) {
+  // CrowpadAirdropper
+  if (deployCrowpadAirdropper) {
     const CrowpadAirdropper = await hre.ethers.getContractFactory(
       "CrowpadAirdropper"
     );
@@ -105,21 +124,19 @@ async function main() {
     );
   }
   
-  /*
-  const CrowpadLockingContract = await hre.ethers.getContractFactory(
-    "CrowpadLockingContract"
-  );
-  const crowpadLockingContract = await CrowpadLockingContract.deploy(
-    "0x44DA42feC06528d827d737E3B276AF6036913044",
-    "0x9502E2F202dDEC76BB1331Ec56a8a1a05B17d0Ac",
-    "0x059cF17C3B04C7C0624dd332Ba81936aDD9c842B"
-  );
-  await crowpadLockingContract.deployed();
-  console.log(
-    "CrowpadLockingContract deployed to:",
-    crowpadLockingContract.address
-  );
-  */
+  // CrowpadLocker
+  if (deployCrowpadLocker) {
+    const CrowpadLocker = await hre.ethers.getContractFactory(
+      "CrowpadLocker"
+    );
+    const crowpadLocker = await CrowpadLocker.deploy(
+      "0x44DA42feC06528d827d737E3B276AF6036913044",
+      "0x9502E2F202dDEC76BB1331Ec56a8a1a05B17d0Ac",
+      "0x059cF17C3B04C7C0624dd332Ba81936aDD9c842B"
+    );
+    await crowpadLocker.deployed();
+    console.log("CrowpadLocker deployed to:", crowpadLocker.address);
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere

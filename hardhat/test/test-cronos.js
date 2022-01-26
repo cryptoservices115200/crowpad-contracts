@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+// Contract Variables
 const CrowpadSimpleTokenFactory = ethers.getContractFactory("CrowpadSimpleTokenFactory");
 const CrowpadTokenFactory = ethers.getContractFactory("CrowpadTokenFactory");
 const CrowpadSaleFactory = ethers.getContractFactory("CrowpadSaleFactory");
@@ -12,9 +13,10 @@ const CrowpadBronzeTierStaker = ethers.getContractFactory("CrowpadBronzeTierStak
 const CrowpadSilverTierStaker = ethers.getContractFactory("CrowpadSilverTierStaker");
 const CrowpadGoldTierStaker = ethers.getContractFactory("CrowpadGoldTierStaker");
 
+// Contract Deploy Addresses
 const CrowpadSimpleTokenFactoryAddress = "0xA07672C04D5e6BDdfAD3Ea97bb4e3C53cB74EDfA";
-const CrowpadTokenFactoryAddress = "0x8a69D67361Afbc705FdCd8bbaB4ab46137707422";
-const CrowpadSaleFactoryAddress = "0x8a69D67361Afbc705FdCd8bbaB4ab46137707422";
+const CrowpadTokenFactoryAddress = "0x99A2Fef2858c63e408581b7c04D33e6572A69d92";
+const CrowpadSaleFactoryAddress = "0x991bbA8847FDd8D88C52cf7e86C2464FA7B88C97";
 
 const CrowpadAirdropperAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
 const CrowpadFlexTierStakerAddress = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
@@ -125,7 +127,7 @@ describe.skip("CrowpadAirdropper", function () {
   });
 });
 
-describe("CrowpadSimpleTokenFactory", function () {
+describe.skip("CrowpadSimpleTokenFactory", function () {
   let crowpadSimpleTokenFactory;
   beforeEach(async function () {
     crowpadSimpleTokenFactory = await (
@@ -204,7 +206,7 @@ describe("CrowpadSaleFactory", function () {
   });
 });
 
-describe("CrowpadTokenFactory", function () {
+describe.skip("CrowpadTokenFactory", function () {
   let crowpadTokenFactory;
   beforeEach(async function () {
     crowpadTokenFactory = await (
