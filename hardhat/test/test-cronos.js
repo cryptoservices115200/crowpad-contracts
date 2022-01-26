@@ -181,8 +181,8 @@ describe("CrowpadSaleFactory", function () {
     );
   });
 
-  it("should deploy a new token on cronos", async () => {
-    await crowpadSaleFactory.createNewToken(
+  it("should deploy a new sales on cronos", async () => {
+    await crowpadSaleFactory.createSale(
       "10",
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
@@ -197,13 +197,18 @@ describe("CrowpadSaleFactory", function () {
     );
   });
 
-  it("should return all token on cronos", async () => {
-    expect(await crowpadSaleFactory.getAllTokens()).to.be.an('array');
+  it("should return all sales on cronos", async () => {
+    expect(await crowpadSaleFactory.createSale()).to.be.an('array');
   });
 
-  it("should return all token for owner on cronos", async () => {
-    expect(await crowpadSaleFactory.getUserTokens("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")).to.be.an('array');
+  it("should return all sales for owner on cronos", async () => {
+    expect(await crowpadSaleFactory.getUserSales("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")).to.be.an('array');
   });
+
+  it("should return all sales for token on cronos", async () => {
+    expect(await crowpadSaleFactory.getTokenSales("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")).to.be.an('array');
+  });
+
 });
 
 describe.skip("CrowpadTokenFactory", function () {

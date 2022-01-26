@@ -21,7 +21,9 @@ contract CrowpadSaleFactory is Ownable {
     Sale[] sales;
 
     mapping(address => uint256) creatorSaleCount;
+    mapping(address => uint256) tokenSaleCount;
     mapping(address => address) saleToCreator;
+    mapping(address => address) saleToToken;
 
     event NewSaleCreated(address from, address wallet, address deployed);
 
@@ -74,10 +76,15 @@ contract CrowpadSaleFactory is Ownable {
         CrowpadSale newSale = new CrowpadSale(_rate, _wallet, _token, _cap, _openingTime, _closingTime, _goal, _foundersFund, _foundationFund, _partnersFund, _releaseTime);
 
         address saleAddress = address(newSale);
-
         sales.push(Sale(saleAddress, msg.sender, _wallet, address(_token), _rate, _goal, block.timestamp));
+
+        // sales for creater
         creatorSaleCount[msg.sender]++;
         saleToCreator[saleAddress] = msg.sender;
+
+        // sales for token
+        tokenSaleCount[address(_token)]++;
+        saleToToken[saleAddress] = address(_token);
 
         emit NewSaleCreated(msg.sender, _wallet, saleAddress);
     }
@@ -94,7 +101,7 @@ contract CrowpadSaleFactory is Ownable {
     * @notice Get all sales deployed on network
     * @dev
     */
-    function getAllSales() external view returns (Sale[] memory) {
+    function createSale() external view returns (Sale[] memory) {
         return sales;
     }
 
@@ -108,7 +115,25 @@ contract CrowpadSaleFactory is Ownable {
         uint counter = 0;
 
         for (uint i = 0; i < sales.length; i++) {
-            if (saleToCreator[sales[i].creatorAddress] == _user) {
+            if (saleToCreator[sales[i].saleAddress] == _user) {
+                result[counter] = sales[i];
+                counter++;
+            }
+        }
+        return result;
+    }
+
+    /**
+    * @notice Get all sales of given token
+    * @param _tokenAddress token address
+    * @dev
+    */
+    function getTokenSales(address _tokenAddress) external view returns (Sale[] memory) {
+        Sale[] memory result = new Sale[](tokenSaleCount[_tokenAddress]);
+        uint counter = 0;
+
+        for (uint i = 0; i < sales.length; i++) {
+            if (saleToToken[sales[i].saleAddress] == _tokenAddress) {
                 result[counter] = sales[i];
                 counter++;
             }
