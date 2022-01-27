@@ -193,9 +193,9 @@ describe("CrowpadSaleFactory", function () {
       12312312,
       15555555,
       3000,
-      100,
-      1000,
-      50,
+      // 100, // Founter
+      // 1000, // Foundation
+      // 50, // Partner
       12222222
     );
   });

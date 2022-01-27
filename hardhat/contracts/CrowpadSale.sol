@@ -26,20 +26,9 @@ contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowds
 
     // Token Distribution
     uint256 public tokenSalePercentage   = 70;
-    uint256 public foundersPercentage    = 10;
-    uint256 public foundationPercentage  = 10;
-    uint256 public partnersPercentage    = 10;
-
-    // Token reserve funds
-    address public foundersFund;
-    address public foundationFund;
-    address public partnersFund;
 
     // Token time lock
     uint256 public releaseTime;
-    address public foundersTimelock;
-    address public foundationTimelock;
-    address public partnersTimelock;
 
     constructor(
         uint256 _rate,
@@ -49,9 +38,6 @@ contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowds
         uint256 _openingTime,
         uint256 _closingTime,
         uint256 _goal,
-        address _foundersFund,
-        address _foundationFund,
-        address _partnersFund,
         uint256 _releaseTime
     )
         Crowdsale(_rate, _wallet, _token)
@@ -60,9 +46,6 @@ contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowds
         RefundablePostDeliveryCrowdsale(_goal)
     {
         require(_goal <= _cap, "Goal can not be greater than Cap.");
-        foundersFund   = _foundersFund;
-        foundationFund = _foundationFund;
-        partnersFund   = _partnersFund;
         releaseTime    = _releaseTime;
     }
 
@@ -139,22 +122,10 @@ contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowds
         if (goalReached()) {
             ERC20PresetMinterPauser _MPToken = ERC20PresetMinterPauser(address(token()));
 
-            uint256 _alreadyMinted = _MPToken.totalSupply();
-            uint256 _finalTotalSupply = _alreadyMinted.div(tokenSalePercentage).mul(100);
-
-            foundersTimelock   = address(new TokenTimelock(token(), foundersFund, releaseTime));
-            foundationTimelock = address(new TokenTimelock(token(), foundationFund, releaseTime));
-            partnersTimelock   = address(new TokenTimelock(token(), partnersFund, releaseTime));
-
-            _MPToken.mint(foundersTimelock, _finalTotalSupply.mul(foundersPercentage).div(100));
-            _MPToken.mint(foundationTimelock, _finalTotalSupply.mul(foundationPercentage).div(100));
-            _MPToken.mint(partnersTimelock, _finalTotalSupply.mul(partnersPercentage).div(100));
-
             // allow token's transfer
             _MPToken.unpause();
         }
 
         super._finalization();
     }
-
 }

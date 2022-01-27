@@ -53,9 +53,6 @@ contract CrowpadSaleFactory is Ownable {
     * @param _openingTime ...
     * @param _closingTime ...
     * @param _goal ...
-    * @param _foundersFund ...
-    * @param _foundationFund ...
-    * @param _partnersFund ...
     * @param _releaseTime ...
     * @dev
     */
@@ -67,13 +64,10 @@ contract CrowpadSaleFactory is Ownable {
         uint256 _openingTime,
         uint256 _closingTime,
         uint256 _goal,
-        address _foundersFund,
-        address _foundationFund,
-        address _partnersFund,
         uint256 _releaseTime
     ) public payable {
         require(msg.value >= deployFee, 'Insufficient funds sent for deploy');
-        CrowpadSale newSale = new CrowpadSale(_rate, _wallet, _token, _cap, _openingTime, _closingTime, _goal, _foundersFund, _foundationFund, _partnersFund, _releaseTime);
+        CrowpadSale newSale = new CrowpadSale(_rate, _wallet, _token, _cap, _openingTime, _closingTime, _goal, _releaseTime);
 
         address saleAddress = address(newSale);
         sales.push(Sale(saleAddress, msg.sender, _wallet, address(_token), _rate, _goal, block.timestamp));
