@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 interface IUniswapV2Factory {
@@ -195,7 +195,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
+contract CrowpadToken is ERC20, Ownable {
 
     using SafeMath for uint256;
     using Address for address;
@@ -252,7 +252,7 @@ contract CrowpadToken is ERC20PresetMinterPauser, Ownable {
         address feeaddress,
         address tokenOwner
     )
-        ERC20PresetMinterPauser(name_, symbol_) payable
+        ERC20(name_, symbol_) payable
     {
         _decimals = decimals_;
         _tTotal = _supply * 10 ** _decimals;
