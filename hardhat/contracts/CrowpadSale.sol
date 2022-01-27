@@ -6,12 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 import "./crowpadsale/Crowdsale.sol";
-import "./crowpadsale/emission/MintedCrowdsale.sol";
 import "./crowpadsale/validation/CappedCrowdsale.sol";
 import "./crowpadsale/validation/TimedCrowdsale.sol";
 import "./crowpadsale/distribution/RefundablePostDeliveryCrowdsale.sol";
 
-contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
+contract CrowpadSale is Crowdsale, CappedCrowdsale, TimedCrowdsale, RefundablePostDeliveryCrowdsale, Ownable {
     using SafeMath for uint256;
 
     // Track investor contributions
@@ -102,30 +101,7 @@ contract CrowpadSale is Crowdsale, MintedCrowdsale, CappedCrowdsale, TimedCrowds
         contributions[_beneficiary] = _newContribution;
     }
 
-    /**
-     * @dev Overrides delivery by minting tokens upon purchase.
-     * @param beneficiary Token purchaser
-     * @param tokenAmount Number of tokens to be minted
-     */
-    function _deliverTokens(address beneficiary, uint256 tokenAmount) internal override(MintedCrowdsale, Crowdsale) {
-        MintedCrowdsale._deliverTokens(beneficiary, tokenAmount);
-    }
-
     function _processPurchase(address beneficiary, uint256 tokenAmount) internal override(Crowdsale, RefundablePostDeliveryCrowdsale) {
         RefundablePostDeliveryCrowdsale._processPurchase(beneficiary, tokenAmount);
-    }
-
-    /**
-    * @dev enables token transfers, called when owner calls finalize()
-    */
-    function _finalization() internal override {
-        if (goalReached()) {
-            ERC20PresetMinterPauser _MPToken = ERC20PresetMinterPauser(address(token()));
-
-            // allow token's transfer
-            _MPToken.unpause();
-        }
-
-        super._finalization();
     }
 }
